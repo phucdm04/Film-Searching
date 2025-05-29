@@ -1,12 +1,12 @@
 # Film-Searching
 
----
 
 ## 📥 Data Retrieval Script
 
 To keep our credentials secure, we use a `.env` file to store the MongoDB connection URI.
 ```env
 MONGO_URI=[your_mongodb_uri]
+```
 
 Then use the below script to retrieve data.
 ```python
@@ -31,3 +31,4 @@ db = client["Film"]
 collection = db["Data"]
 cursor = collection.find({}, {"_id": 0})
 df = pd.DataFrame(list(cursor))
+```
