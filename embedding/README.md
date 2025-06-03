@@ -19,10 +19,6 @@ import pickle
 model_name = ""
 with open(f"./trained_models/{model_name}", "rb") as f:
 	embedder = pickle.load(f)
-qdrant_client  =  QdrantClient(
-	url="https://9c9b2577-14d6-49a3-b752-460ea063effe.eu-west-1-0.aws.cloud.qdrant.io:6333",
-	api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.e7K6I6PWiaRH0D551h-pnO31dYJFG1rgyGpLMkj_Qd8",
-)
 ```
 
 Truy xuất từ Qdrant
