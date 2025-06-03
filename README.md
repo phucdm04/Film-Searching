@@ -1,34 +1,18 @@
-# Film-Searching
 
-
-## 📥 Data Retrieval Script
-
-To keep our credentials secure, we use a `.env` file to store the MongoDB connection URI.
-```env
-MONGO_URI=[your_mongodb_uri]
-```
-
-Then use the below script to retrieve data.
+# Access to Qdrant
 ```python
-from pymongo import MongoClient
-import pandas as pd
+from qdrant_client import QdrantClient
 from dotenv import load_dotenv
 import os
 
 # Load environment variables from .env file
 load_dotenv()
-
 # Get the MongoDB URI from environment variable
-uri = os.getenv("MONGO_URI")
-
-client = MongoClient(
-    uri,
-    tls=True,
-    tlsAllowInvalidCertificates=True
+url = os.getenv("QDRANT_URL")
+api_key = os.getenv("QDRANT_KEY")
+# Access to VectorDB
+qdrant_client  =  QdrantClient(
+	url=url,
+	api_key=api_key,
 )
-
-db = client["Film"]
-collection = db["Data"]
-cursor = collection.find({}, {"_id": 0})
-df = pd.DataFrame(list(cursor))
 ```
