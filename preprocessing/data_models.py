@@ -1,5 +1,7 @@
 from typing import Optional, List, Union
-from pydantic import BaseModel, HttpUrl, validator
+from pydantic import BaseModel, HttpUrl, validator, Field
+from pydantic import BaseModel, Field
+import uuid
 
 class FilmMetadata(BaseModel):
     film_name: str
@@ -41,4 +43,11 @@ class CleanFilm(BaseModel):
     metadata: FilmMetadata
 
 
-__all__ = [RawFilm, CleanFilm, FilmMetadata]
+class QdrantPoint(BaseModel):
+    id: Optional[Union[int, str]] = Field(default_factory=lambda: str(uuid.uuid4()))
+    text: str
+    metadata: FilmMetadata
+    vector: List[float]
+
+
+__all__ = [RawFilm, CleanFilm, FilmMetadata, QdrantPoint]

@@ -1,13 +1,5 @@
 import os
 from pymongo import MongoClient
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Configuration
-MONGO_URI = os.getenv("MONGO_URI")
-DATABASE_NAME =  os.getenv("DATABASE_NAME")
-COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 def connect_to_mongodb(mongo_uri):
     """Function to connect to mongodb client.

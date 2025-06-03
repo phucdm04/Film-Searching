@@ -1,6 +1,6 @@
-from mongodb_connector import connect_to_mongodb, get_database, get_collection, get_all_documents
+from database_connector.mongodb_connector import connect_to_mongodb, get_database, get_collection, get_all_documents
 from data_models import RawFilm, CleanFilm, FilmMetadata
-from preprocessing import LSASVDPipeline, WordEmbeddingPipeline
+from preprocessing.preprocessing import LSASVDPipeline, WordEmbeddingPipeline
 import os
 from dotenv import load_dotenv
 from typing import List
@@ -60,7 +60,7 @@ def process_and_upsert(films: List[dict], pipeline, dest_collection_name):
             original_description=rf.description,
             cleaned_description=cleaned,
             metadata=FilmMetadata(
-                film_name=rf.film_name,
+                film_name=str(rf.film_name),
                 image_link=rf.image_link,
                 is_adult=rf.isAdult,
                 start_year=rf.startYear,
