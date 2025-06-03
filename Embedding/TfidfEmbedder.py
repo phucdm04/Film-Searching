@@ -3,6 +3,9 @@ from collections import Counter
 from typing import List, Optional
 import numpy as np
 
+from typing import List
+from tqdm import tqdm
+
 class TfidfEmbedder:
     def __init__(self, smooth_idf: bool = True, norm: Optional[str] = 'l2'):
         self.vocab = {}
