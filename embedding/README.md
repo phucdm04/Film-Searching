@@ -1,4 +1,4 @@
-# About folder
+# embedding
 Cấu trúc folder
 ```
 embedding
