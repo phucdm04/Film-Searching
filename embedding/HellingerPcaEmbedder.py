@@ -83,7 +83,7 @@ class PCA:
         plt.legend()
         plt.show()
 
-class Embedder:
+class HPEmbedder:
     def __init__(self, n_components: int = None, window_size: int = 2, max_features: int = None):
         self.n_components = n_components
         self.window_size = window_size
@@ -143,7 +143,7 @@ class Embedder:
         X_norm = X / X_sum
         return np.sqrt(X_norm)    
 
-    def fit(self, docs: List[str], plot=False):
+    def fit(self, docs: List[str], plot: bool =False):
         cooc_matrix = self._build_cooccurrence_matrix(docs)
         X_hel = self._hellinger_transform(cooc_matrix)
         self.embeddings = self.pca.fit_transform(X_hel)
@@ -151,13 +151,14 @@ class Embedder:
             self.pca.plot_cumulative_variance()
 
     # Embed words
-    def transform(self, docs: List[str]) -> np.ndarray:
+    def transform_word(self, docs: List[str]) -> np.ndarray:
         if self.vocab is None:
             raise ValueError("Model must be fitted")
         cooc_matrix = self._build_cooccurrence_matrix(docs, self.vocab)
         X_hel = self._hellinger_transform(cooc_matrix)
         return self.pca.transform(X_hel)
 
+    # embed docs
     def transform_docs(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
         """
         Tính vector biểu diễn cho mỗi văn bản trong `docs` bằng cách
@@ -199,7 +200,7 @@ if __name__ == "__main__":
             "B is a child of A and C",
             "B is son of A"]
 
-    embedder = Embedder()
+    embedder = HPEmbedder()
     embedder.fit(docs, plot=False)
     print(embedder.transform(docs)) # word embedding
     print(embedder.transform_docs(docs)) # sentence embedding
