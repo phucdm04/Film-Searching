@@ -1,0 +1,13 @@
+flask
+pandas
+scikit-learn
+nltk    
+pyngrok
+pymongo
+contractions
+unidecode
+qdrant-client
+dotenv
+numpy
+tqdm
+matplotlib

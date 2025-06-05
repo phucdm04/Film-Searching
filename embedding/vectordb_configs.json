@@ -1,0 +1,12 @@
+[
+    {
+        "model_name": "tfidf.pkl",
+        "collection_name": "tfidf",
+        "size": 3120
+    },
+    {
+        "model_name": "hellinger_pca.pkl",
+        "collection_name": "hellinger_pca",
+        "size": 2297
+    }
+]
