@@ -16,27 +16,13 @@ from qdrant_client.http.models import PointStruct
 from preprocessing.Preprocessor import LSASVDPipeline, WordEmbeddingPipeline
 
 
-def upsert(qdrant_client, collection_name, embedded_docs, mongo_collection):
-
-    for i, docs in enumerate(tqdm(embedded_docs, desc=f"Upserting to Collection {collection_name}")):
-        metadata = mongo_collection[i]["metadata"]
-        metadata["mongo_id"] =  mongo_collection[i]["id"]
-        point = [PointStruct(id=i, vector=docs, payload={
-            "text":  mongo_collection[i]["original_description"],
-            "metadata": metadata,
-            })]
-        qdrant_client.upsert(
-            collection_name=collection_name,
-            points = point
-        )
-
 if __name__ == "__main__":
     url = os.getenv("QDRANT_URL")
     key = os.getenv("QDRANT_KEY")
     client = connect_to_qdrant(url, key)
 
-    query = "Sally Temple actress from theatre helps people of land, pretends to be a lady to deceive lord, runs away, fights with enemy, kidnapped by Duke of Chatto, rescued by Romsey, gives Pump Lane to her people"
-    # id should be returned tt0008779
+    query = "actress at Drury Lane helps people on Pump Lane against a duke, then pretends to be someone else's wife to save her neighbors – a lord finds out and tries to force her to marry him, but a prize fighter helps her escape. Story about a woman rescuing a neighborhood and a duke trying to oppress them, with a fake marriage and a fight."
+    # id should be returned 
     # load model
     model_name = "hellinger_pca" # or "tfidf"
     with open(f"./embedding/trained_models/{model_name}.pkl", 'rb') as f:
