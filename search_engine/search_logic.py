@@ -16,22 +16,10 @@ url = os.getenv("QDRANT_URL")
 key = os.getenv("QDRANT_KEY")
 client = connect_to_qdrant(url, key)
 
-# model_name = "hellinger_pca"
-# model_name = "tfidf"
-
-
-
-# pipeline = LSASVDPipeline()
-# pipeline = WordEmbeddingPipeline()
-
 def search_query(query_text, model_name):
     with open(f"./trained_models/{model_name}.pkl", 'rb') as f:
         print(model_name)
         embedder = pickle.load(f)
-
-    # processed_query = pipeline.preprocess(query_text)
-    # embedded_query = embedder.transform_docs([processed_query])[0]
-    # results = search_points(client, model_name, embedded_query)
 
     # Chọn pipeline tương ứng
     if model_name == "tfidf":
