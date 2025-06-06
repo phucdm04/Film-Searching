@@ -15,11 +15,16 @@ class TruncatedSVD:
 
     def fit(self, X: np.ndarray):
         self.mean_ = np.mean(X, axis=0)
-        U, S, VT = np.linalg.svd(X, full_matrices=False)
-        if self.n_components is None:
-            self.n_components = X.shape[1]
+        X_centered = X - self.mean_
+
+        U, S, VT = np.linalg.svd(X_centered, full_matrices=False)
+        n_dim = VT.shape[0]
+        if self.n_components is None or self.n_componets > n_dim:
+            self.n_components = n_dim
+
         self.components_ = VT[:self.n_components, :]
         self.singular_values_ = S[:self.n_components]
+
         total_var = np.sum(S ** 2)
         comp_var = S[:self.n_components] ** 2
         self.explained_variance_ratio_ = comp_var / total_var
@@ -28,7 +33,8 @@ class TruncatedSVD:
     def transform(self, X: np.ndarray) -> np.ndarray:
         if not self.fitted:
             raise ValueError("Fitted first!")
-        return np.dot(X, self.components_.T)
+        X_centered = X - self.mean_
+        return np.dot(X_centered, self.components_.T)
 
     def choose_n_components(self, threshold=0.95):
         # Find number of components to keep based on threshold
@@ -44,12 +50,15 @@ class TruncatedSVD:
         if self.explained_variance_ratio_ is None:
             raise RuntimeError("Call fit() !!!")
         cum_var = np.cumsum(self.explained_variance_ratio_)
+        
         plt.figure(figsize=(20, 10))
         plt.plot(range(1, len(cum_var)+1), cum_var, linestyle='-')
+
         if threshold is not None:
             n_component = self.choose_n_components(threshold)
             plt.axvline(x=n_component, color='blue', linestyle='--', label=f'Selected Components = {n_component}')
             plt.axhline(y=threshold, color='red', linestyle='--', label=f'Remained Information = {threshold * 100}%')
+
         plt.xlabel("Number of Components")
         plt.ylabel("Cumulative Explained Variance Ratio")
         plt.title("Cumulative Explained Variance by SVD Components")
