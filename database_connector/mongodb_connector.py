@@ -1,5 +1,6 @@
 import os
 from pymongo import MongoClient
+from typing import List, Dict, Any
 
 def connect_to_mongodb(mongo_uri):
     """Function to connect to mongodb client.
@@ -68,3 +69,15 @@ def get_documents_by_index(collection, start_index, end_index):
         raise Exception(f"Connection failed: {e}")
 
     return documents
+
+def load_documents(uri:str, database_name:str, collection_name: str) -> List[Dict[str, Any]]:
+    """
+    Load all documents from a MongoDB collection.
+    """
+
+    mongo_client = connect_to_mongodb(uri)
+    database = get_database(mongo_client, database_name)
+    collection = get_collection(database, collection_name)
+    all_documents = get_all_documents(collection)
+
+    return all_documents
