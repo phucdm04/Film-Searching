@@ -36,15 +36,3 @@ def search_query(query_text, model_name):
     results = search_points(client, model_name, embedded_query)
 
     return results
-
-# def search_query(query_text):
-#     processed_query = pipeline.preprocess(query_text)
-#     embedded_query = embedder.transform_docs([processed_query])[0]
-#     results = search_points(client, model_name, embedded_query)
-#     return results
-# def search_query(query_text):
-#     processed_query = preprocessor.preprocess_single_text(query_text)
-#     joined_query = ' '.join(processed_query)
-#     embedded_query = embedder.transform_docs([joined_query])[0]
-#     results = search_points(client, model_name, embedded_query)
-#     return results
