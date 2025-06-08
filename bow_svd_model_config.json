@@ -1,0 +1,11 @@
+{
+  "bow_args": {
+    "min_word_freq": 2,
+    "max_features": 1830,
+    "tokenizer": "whitespace"
+  },
+  "dim_reduc_args": {
+    "n_components": null,
+    "n_components_percent": 0.9
+  }
+}
