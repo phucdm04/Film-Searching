@@ -56,19 +56,19 @@ if __name__ == "__main__":
     uri = os.getenv("MONGO_URI")
     db_name = os.getenv("DATABASE_NAME")
     
-    # lsa_collection_name = os.getenv("LSA_COLLECTION_NAME")
-    # lsa_docs = load_documents(uri, db_name, lsa_collection_name)
-    # processed_lsa_docs = [doc["cleaned_description"] for doc in lsa_docs]
+    lsa_collection_name = os.getenv("LSA_COLLECTION_NAME")
+    lsa_docs = load_documents(uri, db_name, lsa_collection_name)
+    processed_lsa_docs = [doc["cleaned_description"] for doc in lsa_docs]
 
-    # embedder = train_tfidf(processed_lsa_docs, max_features=1830)   # 1423 
+    embedder = train_tfidf(processed_lsa_docs, max_features=1830)   # 1423 
 
-    wemb_collection_name = os.getenv("WEMB_COLLECTION_NAME")
-    wemb_docs = load_documents(uri, db_name, wemb_collection_name)
-    processed_wemb_docs = [doc["cleaned_description"] for doc in wemb_docs]
+    # wemb_collection_name = os.getenv("WEMB_COLLECTION_NAME")
+    # wemb_docs = load_documents(uri, db_name, wemb_collection_name)
+    # processed_wemb_docs = [doc["cleaned_description"] for doc in wemb_docs]
 
-    embedder = train_helling_pca(processed_wemb_docs, max_features=1266) # 656
+    # embedder = train_helling_pca(processed_wemb_docs, max_features=1266) # 656
     
-    # path = "./embedding/trained_models/tfidf.pkl"
-    # with open(path, "wb") as f:
-    #     pickle.dump(embedder, f)
-    #     print("Dump sucessfully!")
+    path = "./embedding/trained_models/tfidf.pkl"
+    with open(path, "wb") as f:
+        pickle.dump(embedder, f)
+        print("Dump sucessfully!")
