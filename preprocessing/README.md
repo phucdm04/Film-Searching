@@ -1,9 +1,4 @@
 # Preprocessing
-
-Họ và tên: Nguyễn Thuận Phát
-
-MSSV: 22280062
-
 ## Cấu trúc folder
 
 ```
