@@ -34,7 +34,7 @@ def create_qdrant_points(documents: List[dict], corpus: List[str], embedding_mat
     list_of_points = []
     for idx in range(len(embedding_matrix)):
         point = QdrantPoint(
-            text = corpus[idx],
+            text = documents[idx]['original_description'],
             vector = embedding_matrix[idx],
             metadata = documents[idx]['metadata']
         )
