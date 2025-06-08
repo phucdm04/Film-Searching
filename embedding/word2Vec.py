@@ -2,12 +2,14 @@
 import numpy as np
 import pickle
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
-# MongoDB settings
-MONGO_URI = "mongodb+srv://trandoanvuongtu:HB1j39319UxU2iHY@cluster0.2cudz7h.mongodb.net/?retryWrites=true&w=majority"
-DB_NAME = "Film"
-COLLECTION_NAME = "word_embedding_preprocessed"
+load_dotenv()
 
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 def get_sentences():
     client = MongoClient(MONGO_URI)
