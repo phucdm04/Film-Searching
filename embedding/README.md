@@ -1,43 +1,37 @@
-# embedding
-Cấu trúc folder
+Documents
+=
+# Cấu trúc folder
 ```
 embedding
 |-- __init__.py
+|-- README.md
+|-- vectordb_configs.json
 |-- HellingerPCAEmbedder.py
 |-- TfidfEmbedder.py
+|-- FastText.py
+|-- word2Vec.py
+|-- glove.py
+|-- bow_svd_model
+	|-- ...
 |-- trained_models
 	|-- tfidf.pkl 
 	|-- hellinger_pca.pkl
-|-- vectordb_configs.json 				# File configs khi truy cập vô qdrant để upsert dữ liệu
-|-- README.md
 ```
 
-Code gọi model
-```python
-import pickle
+## `HellingerPcaEmbedder.py`
+Các methods chính:
+- `fit`: cho Embedder học ma trận từ đồng xuất hiện
+- `transform_word`: nhúng một từ
+- `transform_docs`: nhúng tài liệu
+- `find_best_n_components`: tìm giá trị thành phần chính giữ lại $i$% thông tin so với tài liệu gốc (mặc định là 95%)
 
-model_name = ""
-with open(f"./trained_models/{model_name}", "rb") as f:
-	embedder = pickle.load(f)
-```
+## `TfidfEmbedder.py`
+Các methods chính:
+- `fit`: cho Embedder học ma trận từ đồng xuất hiện
+- `transform_docs`: nhúng tài liệu
+- `find_best_n_components`: tìm giá trị thành phần chính giữ lại $i$% thông tin so với tài liệu gốc (mặc định là 95%)
 
-Truy xuất từ Qdrant
-```python
-from qdrant_client import QdrantClient
-qdrant_client = QdrantClient(
-	url=,
-	api_key=,)
-# liên hệ Phúc để lấy url và api_key 🫢
 
-def query_result(query: str, embedder, collection_name: str) -> None:
-	query_embedding = embedder.transform([query])[0] # make sure query has been processed
-	search_result = qdrant_client.search(
-		collection_name=collection_name,
-		query_vector=query_embedding,
-		limit=10
-	)
-
-	for hit in search_result:
-		print(f"Score: {hit.score:.3f} - Text:\n{hit.payload['text']}\n")
-```
-
+# Reference
+https://aclanthology.org/E14-1051.pdf
+https://arxiv.org/pdf/2405.07767

@@ -58,7 +58,7 @@ class TruncatedSVD:
 
         return n_components
 
-    def plot_cumulative_variance(self, threshold = 0.95):
+    def plot_cumulative_variance(self, threshold = 0.95, n_component = None):
         if self.explained_variance_ratio_ is None:
             raise RuntimeError("Bạn cần gọi .fit() trước khi vẽ biểu đồ explained variance.")
 
@@ -67,7 +67,7 @@ class TruncatedSVD:
         
         plt.plot(range(1, len(cum_var)+1), cum_var, linestyle='-')
         if threshold is not None:
-            n_component = self.choose_n_components(threshold)
+            n_component = self.choose_n_components(threshold) if n_component is None else n_component
             plt.axvline(x=n_component, color='blue', linestyle='--', label=f'Selected Components = {n_component}')
             plt.axhline(y=threshold, color='red', linestyle='--', label=f'Remained Information = {threshold * 100}%')
         plt.xlabel("Number of Components")
@@ -126,7 +126,7 @@ class TEmbedder:
         return tfidf_matrix
 
     
-    def fit(self, documents: List[str], plot: bool = False) -> None:
+    def fit(self, documents: List[str]) -> None:
         """Xây dựng từ vựng và tính IDF"""
         N = len(documents)
         df = Counter()
@@ -158,8 +158,13 @@ class TEmbedder:
 
         tfidf_matrix = self._create_tfidf_matrix(documents)
         self.lsa.fit(tfidf_matrix)
+
+    def find_best_n_components(self, threshold: float = 0.95, plot: bool= True) -> int:
+        best_n = self.lsa.choose_n_components(threshold)
         if plot:
-            self.lsa.plot_cumulative_variance()
+            self.lsa.plot_cumulative_variance(threshold = threshold, n_component=best_n)
+        return best_n
+
 
     def transform_docs(self, documents: List[str]) -> np.ndarray:
         tfidf_matrix = self._create_tfidf_matrix(documents)

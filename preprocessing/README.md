@@ -1,4 +1,12 @@
 # Preprocessing
+<<<<<<< HEAD
+=======
+
+Họ và tên: Nguyễn Thuận Phát
+
+MSSV: 22280062
+
+>>>>>>> MPhuc-branch
 ## Cấu trúc folder
 
 ```
