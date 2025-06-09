@@ -13,5 +13,10 @@
         "model_name": "BOW_SVD_Embedding.pkl",
         "collection_name": "svd_bow",
         "size": 1647
+    },
+    {
+        "model_name": "glove.pkl",
+        "collection_name": "glove",
+        "size": 1000
     }
 ]

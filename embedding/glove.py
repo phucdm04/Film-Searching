@@ -21,6 +21,8 @@ class GloVe:
         self.alpha = alpha
         self.lr = learning_rate
         self.epochs = epochs
+        self.word2id = {}
+        self.id2word = {}
 
         # Embedding vectors and biases
         self.W = np.random.randn(vocab_size, embedding_dim) / np.sqrt(vocab_size)
@@ -81,6 +83,32 @@ class GloVe:
     def get_embeddings(self):
         # Trả về tổng embeddings của word và context word
         return self.W + self.W_context
+    
+    @staticmethod
+    def from_pretrained(pickle_path):
+        with open(pickle_path, "rb") as f:
+            data = pickle.load(f)
+
+        word2id = data["word2id"]
+        id2word = data["id2word"]
+        embeddings = data["embeddings"]
+        vocab_size = len(word2id)
+
+        model = GloVe(vocab_size=vocab_size, embedding_dim=embeddings.shape[1])
+        model.W = embeddings / 2  # assume W + W_context = embeddings
+        model.W_context = embeddings / 2
+        model.word2id = word2id
+        model.id2word = id2word
+        model.embeddings = embeddings
+        return model
+
+    def encode(self, text):
+        tokens = text.lower().split()
+        vectors = [self.embeddings[self.word2id[w]] for w in tokens if w in self.word2id]
+        if vectors:
+            return np.mean(vectors, axis=0)
+        else:
+            return np.zeros(self.embeddings.shape[1])
 
 
 def build_vocab(sentences, min_count=1):
@@ -112,29 +140,72 @@ def build_cooccur_matrix(sentences, word2id, window_size=5):
     cooccur_data = [(i, j, x_ij) for (i, j), x_ij in cooccur.items()]
     return cooccur_data
 
+import sys
+import os
+
+# Add project root to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from preprocessing.preprocessing import LSASVDPipeline, WordEmbeddingPipeline
+from database_connector.qdrant_connector import search_points, connect_to_qdrant
+
+client = connect_to_qdrant(os.getenv('QDRANT_URL'), os.getenv('QDRANT_KEY'))
+
+def search_query(query_text, model_name):
+    path = f"./embedding/trained_models/{model_name}.pkl"
+
+    with open(path, 'rb') as f:
+        print(model_name)
+        embedder = pickle.load(f)
+
+    # Chọn pipeline tương ứng
+    if model_name == "tfidf":
+        pipeline = LSASVDPipeline()
+        processed_query = pipeline.preprocess(query_text)
+    elif model_name == "hellinger_pca":
+        pipeline = WordEmbeddingPipeline()
+        processed_query = pipeline.preprocess_single_text(query_text)
+    elif model_name == "glove":
+        glove = GloVe.from_pretrained(path)
+        processed_query = glove.encode(query_text)
+    else:
+        raise ValueError(f"Model chưa được hỗ trợ.")
+
+    # Tiền xử lý + vector hóa
+    if model_name in ["tfidf", "hellinger_pca"]:
+        embedded_query = embedder.transform_docs([processed_query])[0] # add [0] to make sure shape is (n, )
+        results = search_points(client, model_name, embedded_query)
+    elif model_name == "glove":
+        embedded_query = processed_query
+        results = search_points(client, model_name, embedded_query)
+
+    return results
+
 
 if __name__ == "__main__":
-    sentences = get_sentences()
+    # sentences = get_sentences()
 
-    print("Building vocabulary...")
-    word2id, id2word = build_vocab(sentences, min_count=1)
-    print(f"Vocabulary size: {len(word2id)}")
+    # print("Building vocabulary...")
+    # word2id, id2word = build_vocab(sentences, min_count=1)
+    # print(f"Vocabulary size: {len(word2id)}")
 
-    print("Building co-occurrence matrix...")
-    cooccur_data = build_cooccur_matrix(sentences, word2id, window_size=5)
-    print(f"Co-occurrence pairs: {len(cooccur_data)}")
+    # print("Building co-occurrence matrix...")
+    # cooccur_data = build_cooccur_matrix(sentences, word2id, window_size=5)
+    # print(f"Co-occurrence pairs: {len(cooccur_data)}")
 
-    print("Training GloVe model...")
-    model = GloVe(vocab_size=len(word2id), embedding_dim=50, epochs=50)
-    model.fit(cooccur_data)
+    # print("Training GloVe model...")
+    # model = GloVe(vocab_size=len(word2id), embedding_dim=50, epochs=100)
+    # model.fit(cooccur_data)
 
-    embeddings = model.get_embeddings()
-    print("Saving embeddings to glove_embeddings.pkl...")
-    with open("./embedding/trained_models/glove.pkl", "wb") as f:
-        pickle.dump({
-            "embeddings": embeddings,
-            "word2id": word2id,
-            "id2word": id2word
-        }, f)
+    # embeddings = model.get_embeddings()
+    # print("Saving embeddings to glove_embeddings.pkl...")
+    # with open("./embedding/trained_models/glove.pkl", "wb") as f:
+    #     pickle.dump({
+    #         "embeddings": embeddings,
+    #         "word2id": word2id,
+    #         "id2word": id2word
+    #     }, f)
 
-    print("Done.")
+    # print("Done.")
+
+    print(search_query("Film which have a spider main", "glove"))
