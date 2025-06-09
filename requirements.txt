@@ -1,0 +1,9 @@
+pymongo
+python-dotenv
+nltk
+contractions
+matplotlib
+tqdm
+scipy
+pydantic
+numpy
