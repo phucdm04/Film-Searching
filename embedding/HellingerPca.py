@@ -161,8 +161,8 @@ class HPEmbedder:
         X_hel = self._hellinger_transform(cooc_matrix)
         return self.pca.transform(X_hel)
 
-    # embed docs
-    def transform_docs(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
+    # embed doc
+    def transform_doc(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
         """
         Tính vector biểu diễn cho mỗi văn bản trong `docs` bằng cách
         trung bình các vector từ trong câu (nếu từ đó có trong vocab).
