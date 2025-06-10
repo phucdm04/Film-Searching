@@ -9,7 +9,7 @@
         "model_name": "hellinger_pca.pkl",
         "qdrant_collection_name": "hellinger_pca",
         "qdrant_vector_size": 656,
-        "metric": null
+        "metric": {'Precision@10': 0.038144817794604685, 'Recall@10': 0.3809749171793658, 'F1@10': 0.06933987293665576, 'MRR': 0.2650074369549048, 'MAP': 0.2650074369549048, 'nDCG@10': 0.29266681716583437, 'Retrieve time': 0.22971522012594126}
     },
     {
         "model_name": "BOW_SVD_Embedding.pkl",
