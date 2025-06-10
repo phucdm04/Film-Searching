@@ -206,4 +206,4 @@ if __name__ == "__main__":
     embedder = HPEmbedder()
     embedder.fit(docs, plot=False)
     print(embedder.transform(docs)) # word embedding
-    print(embedder.transform_docs(docs)) # sentence embedding
+    print(embedder.transform_doc(docs)) # sentence embedding
