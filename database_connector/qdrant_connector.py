@@ -198,11 +198,11 @@ def search_points(qdrant_client: QdrantClient, collection_name: str, query_vecto
             with_payload=True
         )
         
-        print(f"Found {len(search_result)} similar points")
+        # print(f"Found {len(search_result)} similar points")
         return search_result
         
     except Exception as e:
-        print(f"Failed to search points: {e}")
+        # print(f"Failed to search points: {e}")
         return []
 
 def delete_point(qdrant_client: QdrantClient, collection_name: str, point_id: Union[int, str]):
