@@ -98,7 +98,8 @@ class TEmbedder:
         """Tính TF-IDF và chuẩn hóa"""
         tfidf_matrix = np.zeros((len(documents), len(self.vocab)))
 
-        for i, doc in enumerate(tqdm(documents, desc="Creating Tf-Idf matrix...")):
+        # for i, doc in enumerate(tqdm(documents, desc="Creating Tf-Idf matrix...")):
+        for i, doc in enumerate(documents):
             tokens = doc.lower().split()
             tf = Counter(tokens)
             doc_len = len(tokens)
@@ -166,7 +167,7 @@ class TEmbedder:
         return best_n
 
 
-    def transform_docs(self, documents: List[str]) -> np.ndarray:
+    def transform_doc(self, documents: List[str]) -> np.ndarray:
         tfidf_matrix = self._create_tfidf_matrix(documents)
         return self.lsa.transform(tfidf_matrix)
 
