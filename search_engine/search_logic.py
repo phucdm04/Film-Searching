@@ -15,6 +15,7 @@ load_dotenv()
 # Kết nối Qdrant và nạp mô hình + pipeline
 url = os.getenv("QDRANT_URL")
 key = os.getenv("QDRANT_KEY")
+# print(url, key)
 client = connect_to_qdrant(url, key)
 
 import numpy as np
@@ -88,3 +89,14 @@ def search_query(query_text, model_name):
 
 
     return results
+
+if __name__ == "__main__":
+    url = os.getenv("QDRANT_URL")
+    key = os.getenv("QDRANT_KEY")
+
+
+    query = "actress at Drury Lane helps people on Pump Lane against a duke, then pretends to be someone else's wife to save her neighbors – a lord finds out and tries to force her to marry him, but a prize fighter helps her escape. Story about a woman rescuing a neighborhood and a duke trying to oppress them, with a fake marriage and a fight."
+    # id should be returned 
+    # load model
+    model_name = "bow" # or "tfidf"
+    print(search_query(query, model_name))
