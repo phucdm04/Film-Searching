@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What kind of film?</title>
+  <link rel="stylesheet" href="../static/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <span class="brand">What is <span> my film?</span></span>
+      <nav>
+        <a href="/">Home</a>
+        <a href="about">About</a>
+        <!-- <a href="#">Feedback</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="logo">
+      <img src="../static/Image/clapperboard.png" alt="Clapper Board" />
+      <h1><span>What is my film?</span></h1>
+    </div>
+
+    <h2>Describe a movie</h2>
+    <p class="description">
+      Use your own words, or search with titles, actors, directors, genres etc.
+    </p>
+    <p class="subtitle">We find and recommend for you.</p>
+
+
+    <form id="searchForm" class="search-container">
+      <input
+        type="text"
+        name="query"
+        id="searchInput"
+        placeholder='E.g. "show me James Bond movies with Sean Connery"'
+        required
+      />
+      <div class="control-row">
+        <button type="submit">Search</button>
+        <button class="mic" onclick="startVoiceSearch()">🎤</button>
+        <!-- <label for="modelSelector">Select LSA model:</label> -->
+        <select name="model" id="modelSelector">
+          <option value="tfidf">TF-IDF</option>
+          <option value="bow">BoW</option>
+          <option value="ppmi">PPMI</option>
+          <option value="fasttext">FastText</option>
+          <option value="glove">GloVe</option>
+          <option value="word2vec">Word2Vec</option>
+          <option value="hellinger_pca">Hellinger PCA</option>
+        </select>
+      </div> 
+    
+
+    </form>
+    <!-- <div class="search-container">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder='E.g. "show me James Bond movies with Sean Connery"'
+        />
+        <button onclick="searchMovie()">Search</button>
+        <button class="mic" onclick="startVoiceSearch()">🎤</button>
+    </div>
+    
+    <div class="model-select">
+      <label for="modelSelector">Select LSA model:</label>
+      <select id="modelSelector">
+        <option value="tfidf">TF-IDF</option>
+        <option value="bow">BoW</option>
+        <option value="ppmi">PPMI</option>
+        <option value="fasttext">FastText</option>
+        <option value="glove">GloVe</option>
+        <option value="word2vec">Word2Vec</option>
+        <option value="hellingerpca">HellingerPCA</option>
+      </select>
+    </div> -->
+
+    <div id="results"></div>
+
+    
+  </main>
+
+  <script src="../static/script.js"></script>
+</body>
+
+<!-- <footer>
+  @ All right by our
+</footer> -->
+</html>
