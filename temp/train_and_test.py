@@ -9,9 +9,9 @@ load_dotenv()
 
 # import các pack
 from database_connector.mongodb_connector import load_documents
-from embedding.HellingerPcaEmbedder import HPEmbedder
-from embedding.TfidfEmbedder import TEmbedder
-from preprocessing.Preprocessor import WordEmbeddingPipeline, LSASVDPipeline
+from embedding.HellingerPca import HPEmbedder
+from embedding.Tfidf import TEmbedder
+from preprocessing.preprocessing import WordEmbeddingPipeline, LSASVDPipeline
 
 def train_helling_pca(docs, max_features: int = None, save_path: str = None, find_suit_n_component: bool = True):
     if max_features is None:
@@ -20,12 +20,12 @@ def train_helling_pca(docs, max_features: int = None, save_path: str = None, fin
     embedder = HPEmbedder(n_components = None, max_features=max_features)
     embedder.fit(docs)
     if find_suit_n_component:
-        best_n = embedder.find_best_n_components(plot=True)
+        best_n = embedder.find_best_n_components(plot=False)
         print(f"Re-embedding HellingerPCA with {best_n} components:")
         embedder = HPEmbedder(n_components=best_n, max_features=max_features)
         embedder.fit(docs)
         
-    path = "./embedding/trained_models/tfidf.pkl" if save_path is None else save_path
+    save_path = "./trained_models/hellinger_pca.pkl" if save_path is None else save_path
     with open(save_path, "wb") as f:
         pickle.dump(embedder, f)
         print(f"Dump sucessfully embedder into {save_path}!")
@@ -45,7 +45,7 @@ def train_tfidf(docs, max_features: int = None, save_path: str = None, find_suit
         embedder = TEmbedder(n_components=best_n, max_features=max_features)
         embedder.fit(docs)
 
-    save_path = "./embedding/trained_models/tfidf.pkl" if save_path is None else save_path
+    save_path = "./trained_models/tfidf.pkl" if save_path is None else save_path
     with open(save_path, "wb") as f:
         pickle.dump(embedder, f)
         print(f"Dump sucessfully embedder into {save_path}!")
@@ -67,8 +67,3 @@ if __name__ == "__main__":
     # processed_wemb_docs = [doc["cleaned_description"] for doc in wemb_docs]
 
     # embedder = train_helling_pca(processed_wemb_docs, max_features=1266) # 656
-    
-    path = "./embedding/trained_models/tfidf.pkl"
-    with open(path, "wb") as f:
-        pickle.dump(embedder, f)
-        print("Dump sucessfully!")

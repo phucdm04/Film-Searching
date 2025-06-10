@@ -13,7 +13,7 @@ from database_connector.qdrant_connector import connect_to_qdrant, get_collectio
 from tqdm import tqdm
 from database_connector.mongodb_connector import load_documents
 from qdrant_client.http.models import PointStruct
-from preprocessing.Preprocessor import LSASVDPipeline, WordEmbeddingPipeline
+from preprocessing.preprocessing import LSASVDPipeline, WordEmbeddingPipeline
 
 
 if __name__ == "__main__":
