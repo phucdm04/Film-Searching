@@ -45,14 +45,14 @@ def search_query(query_text, model_name):
         pipeline = LSASVDPipeline()
         processed_query = pipeline.preprocess(query_text)
         # Tiền xử lý + vector hóa
-        embedded_query = embedder.transform_docs([processed_query])[0] # add [0] to make sure shape is (n, )
+        embedded_query = embedder.transform_doc([processed_query])[0] # add [0] to make sure shape is (n, )
         results = search_points(client, model_name, embedded_query)
 
     elif model_name == "hellinger_pca":
         pipeline = WordEmbeddingPipeline()
         processed_query = pipeline.preprocess_single_text(query_text)
         # Tiền xử lý + vector hóa
-        embedded_query = embedder.transform_docs([processed_query])[0] # add [0] to make sure shape is (n, )
+        embedded_query = embedder.transform_doc([processed_query])[0] # add [0] to make sure shape is (n, )
         results = search_points(client, model_name, embedded_query)
 
     elif model_name == "bow":
