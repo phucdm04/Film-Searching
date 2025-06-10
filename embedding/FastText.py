@@ -12,6 +12,7 @@ class TruncatedSVD:
         self.components_ = None
         self.singular_values_ = None
         self.explained_variance_ratio_ = None
+
         self.mean_ = None
         self.fitted = False
 
@@ -33,12 +34,14 @@ class TruncatedSVD:
         total_var = np.sum(S ** 2)
         if total_var == 0:
             raise ValueError("Total variance is zero, cannot compute explained variance ratio.")
+
         comp_var = S[:self.n_components] ** 2
         self.explained_variance_ratio_ = comp_var / total_var
         self.fitted = True
 
     def transform(self, X: np.ndarray) -> np.ndarray:
         if not self.fitted:
+
             raise ValueError("Model must be fitted first!")
         if X.shape[1] != self.components_.shape[1]:
             raise ValueError(f"Input X has {X.shape[1]} features, expected {self.components_.shape[1]}.")
@@ -68,6 +71,7 @@ class TruncatedSVD:
             n_component = self.choose_n_components(threshold)
             plt.axvline(x=n_component, color='blue', linestyle='--', label=f'Selected Components = {n_component}')
             plt.axhline(y=threshold, color='red', linestyle='--', label=f'Threshold = {threshold*100}%')
+
         plt.xlabel("Number of Components")
         plt.ylabel("Cumulative Explained Variance Ratio")
         plt.title("Cumulative Explained Variance by SVD Components")
@@ -108,6 +112,7 @@ class FastText:
                 for j in range(max(0, i - self.window_size), min(len(sentence), i + self.window_size + 1)):
                     if i != j and sentence[j] in self.word2idx:
                         pairs.append((self.word2idx[center], self.word2idx[sentence[j]]))
+
         if not pairs:
             raise ValueError("No valid training pairs generated.")
         return pairs
@@ -127,6 +132,7 @@ class FastText:
         for epoch in tqdm(range(self.epochs), desc="Training FastText"):
             np.random.shuffle(training_pairs)
             loss = 0
+
             for center, context in training_pairs:
                 v_in = self.input_vectors[center]
                 v_out = self.output_vectors[context]
@@ -134,6 +140,7 @@ class FastText:
                 grad = self.lr * (1 - score)
                 self.input_vectors[center] += grad * v_out
                 self.output_vectors[context] += grad * v_in
+
                 # Normalize vectors
                 self.input_vectors[center] /= np.linalg.norm(self.input_vectors[center]) + 1e-10
                 self.output_vectors[context] /= np.linalg.norm(self.output_vectors[context]) + 1e-10
@@ -159,6 +166,7 @@ class FastText:
             return self.input_vectors[self.word2idx[word]]
         print(f"Warning: Word '{word}' not in vocabulary, returning zero vector.")
         return np.zeros(self.vector_size)
+
 
 class FastTextLSAEmbedder:
     def __init__(
@@ -244,6 +252,7 @@ class FastTextLSAEmbedder:
         X = np.array([self._embed_doc(doc) for doc in tokenized])
         return self.lsa.transform(X)
 
+
     def plot_document_vectors(self, documents: List[str]):
         if self.lsa.n_components < 2:
             print("Cannot plot document vectors: n_components must be at least 2.")
@@ -279,3 +288,19 @@ class FastTextLSAEmbedder:
             model = pickle.load(f)
         print(f"Model loaded from {filename}")
         return model
+
+# Example usage
+if __name__ == "__main__":
+    docs = [
+        "cat eats fish",
+        "dog chases cat",
+        "fish swims in river",
+        "cat and dog play together"
+    ]
+    query = "cat chases mouse"
+
+    embedder = FastTextLSAEmbedder(n_components=2)
+    embedder.fit(docs, plot=True)
+    print("Doc vectors:", embedder.transform(docs))
+    print("Query vector:", embedder.transform([query]))
+
