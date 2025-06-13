@@ -134,7 +134,8 @@ class HPEmbedder:
                         cooc_matrix[word_idx, neighbor_idx] += 1  # += vì dok_matrix hỗ trợ cộng dồn
 
         self.vocab = vocab
-        return cooc_matrix.toarray()
+        cooc_matrix = cooc_matrix.toarray()
+        return cooc_matrix / cooc_matrix.sum(axis=1, keepdims=True)
 
     def _hellinger_transform(self, X: np.ndarray) -> np.ndarray:
         X = X.astype(np.float64)
