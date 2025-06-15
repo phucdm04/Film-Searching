@@ -17,6 +17,6 @@
     {
         "model_name": "glove.pkl",
         "collection_name": "glove",
-        "size": 1000
+        "size": 50
     }
 ]

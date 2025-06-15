@@ -103,7 +103,7 @@ class GloVe:
         return model
 
     def encode(self, text):
-        tokens = text.lower().split()
+        tokens = [w.lower() for w in text if isinstance(w, str)]
         vectors = [self.embeddings[self.word2id[w]] for w in tokens if w in self.word2id]
         if vectors:
             return np.mean(vectors, axis=0)
@@ -141,27 +141,27 @@ def build_cooccur_matrix(sentences, word2id, window_size=5):
     return cooccur_data
 
 if __name__ == "__main__":
-    # sentences = get_sentences()
+    sentences = get_sentences()
 
-    # print("Building vocabulary...")
-    # word2id, id2word = build_vocab(sentences, min_count=1)
-    # print(f"Vocabulary size: {len(word2id)}")
+    print("Building vocabulary...")
+    word2id, id2word = build_vocab(sentences, min_count=1)
+    print(f"Vocabulary size: {len(word2id)}")
 
-    # print("Building co-occurrence matrix...")
-    # cooccur_data = build_cooccur_matrix(sentences, word2id, window_size=5)
-    # print(f"Co-occurrence pairs: {len(cooccur_data)}")
+    print("Building co-occurrence matrix...")
+    cooccur_data = build_cooccur_matrix(sentences, word2id, window_size=5)
+    print(f"Co-occurrence pairs: {len(cooccur_data)}")
 
-    # print("Training GloVe model...")
-    # model = GloVe(vocab_size=len(word2id), embedding_dim=50, epochs=100)
-    # model.fit(cooccur_data)
+    print("Training GloVe model...")
+    model = GloVe(vocab_size=len(word2id), embedding_dim=50, epochs=100)
+    model.fit(cooccur_data)
 
-    # embeddings = model.get_embeddings()
-    # print("Saving embeddings to glove_embeddings.pkl...")
-    # with open("./embedding/trained_models/glove.pkl", "wb") as f:
-    #     pickle.dump({
-    #         "embeddings": embeddings,
-    #         "word2id": word2id,
-    #         "id2word": id2word
-    #     }, f)
+    embeddings = model.get_embeddings()
+    print("Saving embeddings to glove_embeddings.pkl...")
+    with open("./embedding/trained_models/glove.pkl", "wb") as f:
+        pickle.dump({
+            "embeddings": embeddings,
+            "word2id": word2id,
+            "id2word": id2word
+        }, f)
 
-    # print("Done.")
+    print("Done.")
