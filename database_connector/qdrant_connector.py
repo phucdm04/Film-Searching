@@ -4,6 +4,7 @@ from qdrant_client.http.models import Distance, VectorParams, PointStruct
 from qdrant_client.http.models import Filter, FieldCondition, MatchValue
 from typing import List, Optional, Union, Dict, Any
 import uuid
+import time
 
 def connect_to_qdrant(qdrant_uri, api_key):
     """Connect to Qdrant client and verify the connection."""
@@ -170,6 +171,70 @@ def insert_points_batch_to_qdrant(qdrant_client: QdrantClient, collection_name: 
     except Exception as e:
         print(f"Failed to insert points in batch: {e}")
         return False
+
+def insert_points_batch_to_qdrant_for_ppmi(qdrant_client: QdrantClient, collection_name: str, qdrant_points: List, batch_size: int = 100):
+    """Insert QdrantPoints to the collection in safe mini-batches with retry and timeout handling."""
+    if not qdrant_points:
+        print("No points to insert")
+        return True
+
+    vector_size = get_vector_size(qdrant_points[0].vector)
+    if not ensure_collection_exists(qdrant_client, collection_name, vector_size):
+        raise Exception(f"Failed to ensure collection '{collection_name}' exists with vector size {vector_size}")
+
+    total = len(qdrant_points)
+    for start in range(0, total, batch_size):
+        end = min(start + batch_size, total)
+        batch = qdrant_points[start:end]
+        point_structs = []
+
+        for qdrant_point in batch:
+            current_vector_size = get_vector_size(qdrant_point.vector)
+            if current_vector_size != vector_size:
+                raise ValueError(f"Inconsistent vector sizes: expected {vector_size}, got {current_vector_size}")
+
+            metadata_dict = (
+                qdrant_point.metadata.dict()
+                if hasattr(qdrant_point.metadata, 'dict')
+                else qdrant_point.metadata
+            )
+
+            payload = {
+                "text": qdrant_point.text,
+                "metadata": metadata_dict
+            }
+
+            point_struct = PointStruct(
+                id=qdrant_point.id,
+                vector=qdrant_point.vector.tolist() if hasattr(qdrant_point.vector, 'tolist') else list(qdrant_point.vector),
+                payload=payload
+            )
+            point_structs.append(point_struct)
+
+        success = False
+        for attempt in range(3):
+            try:
+                t0 = time.time()
+                qdrant_client.upsert(
+                    collection_name=collection_name,
+                    points=point_structs
+                )
+                t1 = time.time()
+                print(f"Batch {start}-{end} inserted successfully in {t1 - t0:.2f} seconds.")
+                success = True
+                break
+            except Exception as e:
+                print(f"Batch {start}-{end} failed on attempt {attempt+1}: {e}")
+                time.sleep(3)
+
+        if not success:
+            print(f"Failed to insert batch {start}-{end} after retries")
+
+        time.sleep(0.5)
+
+    print(f"Successfully processed {total} points")
+    return True
+
 
 def search_points(qdrant_client: QdrantClient, collection_name: str, query_vector: List[float], 
                  limit: int = 10, score_threshold: Optional[float] = None, 

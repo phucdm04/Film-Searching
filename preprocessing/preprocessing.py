@@ -65,7 +65,6 @@ class LSASVDPipeline:
         return [self.preprocess(txt, use_stemming) for txt in texts]
 
 
-
 ### Word Embedding preprocessing classs
 class WordEmbeddingPipeline:
     """
