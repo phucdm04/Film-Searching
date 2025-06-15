@@ -1,10 +1,10 @@
 import numpy as np
+from typing import List, Optional
+from collections import Counter
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 import time
 import pickle
-from collections import Counter
-from typing import List, Optional
-from tqdm import tqdm
 
 class TruncatedSVD:
     def __init__(self, n_components: int):
@@ -20,14 +20,14 @@ class TruncatedSVD:
             raise ValueError("Input matrix X is empty.")
         if self.n_components > X.shape[1]:
             raise ValueError(f"n_components ({self.n_components}) cannot be larger than number of features ({X.shape[1]}).")
-        
+
         self.mean_ = np.mean(X, axis=0)
         X_centered = X - self.mean_
         U, S, VT = np.linalg.svd(X_centered, full_matrices=False)
-        
+
         if self.n_components is None:
             self.n_components = X.shape[1]
-        
+
         self.components_ = VT[:self.n_components, :]
         self.singular_values_ = S[:self.n_components]
         total_var = np.sum(S ** 2)
@@ -169,7 +169,8 @@ class FastTextLSAEmbedder:
         epochs: int = 5,
         lr: float = 0.01,
         min_count: int = 1,
-        neg_samples: int = 5
+        neg_samples: int = 5,
+        use_lsa: bool = True  # New flag to enable/disable LSA
     ):
         self.model = FastText(
             vector_size=vector_size,
@@ -179,15 +180,17 @@ class FastTextLSAEmbedder:
             min_count=min_count,
             neg_samples=neg_samples
         )
-        self.lsa = TruncatedSVD(n_components)
+        self.use_lsa = use_lsa
+        self.lsa = TruncatedSVD(n_components) if use_lsa else None
         self.config = {
-            "n_components": n_components,
+            "n_components": n_components if use_lsa else None,
             "vector_size": vector_size,
             "window": window,
             "epochs": epochs,
             "lr": lr,
             "min_count": min_count,
-            "neg_samples": neg_samples
+            "neg_samples": neg_samples,
+            "use_lsa": use_lsa
         }
 
     def _preprocess(self, doc: str) -> List[str]:
@@ -203,6 +206,8 @@ class FastTextLSAEmbedder:
         return np.mean(vectors, axis=0)
 
     def fit(self, documents: List[str], plot: bool = False):
+        import time
+        import numpy as np
         start_time = time.time()
         if not documents:
             raise ValueError("Documents list is empty.")
@@ -215,51 +220,73 @@ class FastTextLSAEmbedder:
         X = np.array([self._embed_doc(doc) for doc in tokenized])
         if X.shape[0] == 0 or np.all(X == 0):
             raise ValueError("Document embeddings are all zeros, cannot fit SVD.")
-        print("Fitting SVD...")
-        self.lsa.fit(X)
-        training_time = time.time() - start_time
         
+        training_time = time.time() - start_time
+        if self.use_lsa:
+            print("Fitting SVD...")
+            self.lsa.fit(X)
+            explained_variance = np.sum(self.lsa.explained_variance_ratio_)
+        else:
+            explained_variance = None
+
         # Print training statistics
-        print("\\nTraining Statistics:")
+        print("\nTraining Statistics:")
         print(f"Model Configuration: {self.config}")
         print(f"Number of Documents: {len(documents)}")
         print(f"Vocabulary Size: {len(self.model.vocab)}")
         print(f"Training Time: {training_time:.2f} seconds")
         print(f"Final FastText Loss: {losses[-1]:.4f}")
-        print(f"SVD Components: {self.lsa.n_components}")
-        print(f"Explained Variance Ratio: {np.sum(self.lsa.explained_variance_ratio_):.4f}")
-        
+        if self.use_lsa:
+            print(f"SVD Components: {self.lsa.n_components}")
+            print(f"Explained Variance Ratio: {explained_variance:.4f}")
+        else:
+            print("LSA is disabled, using raw FastText embeddings.")
+
         if plot:
             print("Plotting results...")
-            self.lsa.plot_cumulative_variance()
-            if self.lsa.n_components >= 2:
-                self.plot_document_vectors(documents)
-                self.plot_loss_curve(losses)
+            if self.use_lsa:
+                self.lsa.plot_cumulative_variance()
+                if self.lsa.n_components >= 2:
+                    self.plot_document_vectors(documents)
+            else:
+                print("Skipping SVD cumulative variance plot (LSA disabled).")
+                if self.model.vector_size >= 2:
+                    self.plot_document_vectors(documents)
+                else:
+                    print("Cannot plot document vectors: vector_size must be at least 2.")
+            self.plot_loss_curve(losses)
         return losses
 
     def transform(self, documents: List[str]) -> np.ndarray:
-        if not self.lsa.fitted:
-            raise ValueError("Model must be fitted first!")
         tokenized = [self._preprocess(doc) for doc in documents]
         X = np.array([self._embed_doc(doc) for doc in tokenized])
-        return self.lsa.transform(X)
+        if self.use_lsa:
+            if not self.lsa.fitted:
+                raise ValueError("Model must be fitted first!")
+            return self.lsa.transform(X)
+        return X  # Return raw FastText embeddings if LSA is disabled
 
     def plot_document_vectors(self, documents: List[str]):
-        if self.lsa.n_components < 2:
+        if self.use_lsa and self.lsa.n_components < 2:
             print("Cannot plot document vectors: n_components must be at least 2.")
             return
+        if not self.use_lsa and self.model.vector_size < 2:
+            print("Cannot plot document vectors: vector_size must be at least 2.")
+            return
+        import matplotlib.pyplot as plt
         X_transformed = self.transform(documents)
         plt.figure(figsize=(10, 6))
         plt.scatter(X_transformed[:, 0], X_transformed[:, 1], c='blue', alpha=0.6)
         for i, doc in enumerate(documents):
             plt.annotate(doc[:20], (X_transformed[i, 0], X_transformed[i, 1]), fontsize=9)
-        plt.xlabel("Component 1")
-        plt.ylabel("Component 2")
-        plt.title("Document Vectors in 2D (SVD)")
+        plt.xlabel("Component 1" if self.use_lsa else "Dimension 1")
+        plt.ylabel("Component 2" if self.use_lsa else "Dimension 2")
+        plt.title("Document Vectors in 2D (SVD)" if self.use_lsa else "Document Vectors in 2D (FastText)")
         plt.grid(True)
         plt.show()
 
     def plot_loss_curve(self, losses):
+        import matplotlib.pyplot as plt
         plt.figure(figsize=(10, 6))
         plt.plot(range(1, len(losses)+1), losses, marker='o', linestyle='-')
         plt.xlabel("Epoch")
@@ -269,12 +296,14 @@ class FastTextLSAEmbedder:
         plt.show()
 
     def save_model(self, filename: str):
+        import pickle
         with open(filename, 'wb') as f:
             pickle.dump(self, f)
         print(f"Model saved to {filename}")
 
     @staticmethod
     def load_model(filename: str):
+        import pickle
         with open(filename, 'rb') as f:
             model = pickle.load(f)
         print(f"Model loaded from {filename}")
