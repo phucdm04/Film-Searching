@@ -93,23 +93,57 @@ def get_all_points(qdrant_client: QdrantClient, collection_name: str, limit: int
         print(f"Failed to retrieve points from collection '{collection_name}': {e}")
         return [], None
 
-def insert_point_to_qdrant(qdrant_client: QdrantClient, collection_name: str, qdrant_point):
+# def insert_point_to_qdrant(qdrant_client: QdrantClient, collection_name: str, qdrant_point):
+#     """Insert a single QdrantPoint to the collection."""
+#     try:
+#         # Get vector size from the point
+#         vector_size = get_vector_size(qdrant_point.vector)
+        
+#         # Ensure collection exists with correct vector size
+#         if not ensure_collection_exists(qdrant_client, collection_name, vector_size):
+#             raise Exception(f"Failed to ensure collection '{collection_name}' exists with vector size {vector_size}")
+        
+#         # Convert QdrantPoint to PointStruct
+#         point_struct = PointStruct(
+#             id=qdrant_point.id,
+#             vector=qdrant_point.vector.tolist() if hasattr(qdrant_point.vector, 'tolist') else list(qdrant_point.vector),
+#             payload={
+#                 "text": qdrant_point.text,
+#                 "metadata": qdrant_point.metadata.dict() if hasattr(qdrant_point.metadata, 'dict') else qdrant_point.metadata
+#             }
+#         )
+        
+#         # Insert the point
+#         qdrant_client.upsert(
+#             collection_name=collection_name,
+#             points=[point_struct]
+#         )
+        
+#         print(f"Successfully inserted point with ID: {qdrant_point.id}")
+#         return True
+        
+#     except Exception as e:
+#         print(f"Failed to insert point: {e}")
+#         return False
+
+def insert_point_to_qdrant(qdrant_client: QdrantClient, collection_name: str, qdrant_point: Dict):
     """Insert a single QdrantPoint to the collection."""
     try:
         # Get vector size from the point
-        vector_size = get_vector_size(qdrant_point.vector)
+
+        vector_size = get_vector_size(qdrant_point["vector"])
         
         # Ensure collection exists with correct vector size
-        if not ensure_collection_exists(qdrant_client, collection_name, vector_size):
-            raise Exception(f"Failed to ensure collection '{collection_name}' exists with vector size {vector_size}")
+        # if not ensure_collection_exists(qdrant_client, collection_name, vector_size):
+        #     raise Exception(f"Failed to ensure collection '{collection_name}' exists with vector size {vector_size}")
         
         # Convert QdrantPoint to PointStruct
         point_struct = PointStruct(
-            id=qdrant_point.id,
-            vector=qdrant_point.vector.tolist() if hasattr(qdrant_point.vector, 'tolist') else list(qdrant_point.vector),
+            id=qdrant_point["id"],
+            vector=qdrant_point["vector"].tolist() if hasattr(qdrant_point["vector"], 'tolist') else list(qdrant_point["vector"]),
             payload={
-                "text": qdrant_point.text,
-                "metadata": qdrant_point.metadata.dict() if hasattr(qdrant_point.metadata, 'dict') else qdrant_point.metadata
+                "text": qdrant_point["text"],
+                "metadata": qdrant_point["metadata"].dict() if hasattr(qdrant_point["metadata"], 'dict') else qdrant_point["metadata"]
             }
         )
         
@@ -119,46 +153,12 @@ def insert_point_to_qdrant(qdrant_client: QdrantClient, collection_name: str, qd
             points=[point_struct]
         )
         
-        print(f"Successfully inserted point with ID: {qdrant_point.id}")
+        # print(f"Successfully inserted point with ID: {qdrant_point.id}")
         return True
         
     except Exception as e:
         print(f"Failed to insert point: {e}")
         return False
-
-    # def insert_point_to_qdrant(qdrant_client: QdrantClient, collection_name: str, qdrant_point: Dict):
-    # """Insert a single QdrantPoint to the collection."""
-    # try:
-    #     # Get vector size from the point
-
-    #     vector_size = get_vector_size(qdrant_point["vector"])
-        
-    #     # Ensure collection exists with correct vector size
-    #     # if not ensure_collection_exists(qdrant_client, collection_name, vector_size):
-    #     #     raise Exception(f"Failed to ensure collection '{collection_name}' exists with vector size {vector_size}")
-        
-    #     # Convert QdrantPoint to PointStruct
-    #     point_struct = PointStruct(
-    #         id=qdrant_point["id"],
-    #         vector=qdrant_point["vector"].tolist() if hasattr(qdrant_point["vector"], 'tolist') else list(qdrant_point["vector"]),
-    #         payload={
-    #             "text": qdrant_point["text"],
-    #             "metadata": qdrant_point["metadata"].dict() if hasattr(qdrant_point["metadata"], 'dict') else qdrant_point["metadata"]
-    #         }
-    #     )
-        
-    #     # Insert the point
-    #     qdrant_client.upsert(
-    #         collection_name=collection_name,
-    #         points=[point_struct]
-    #     )
-        
-    #     # print(f"Successfully inserted point with ID: {qdrant_point.id}")
-    #     return True
-        
-    # except Exception as e:
-    #     print(f"Failed to insert point: {e}")
-    #     return False
 
 def insert_points_batch_to_qdrant(qdrant_client: QdrantClient, collection_name: str, qdrant_points: List):
     """Insert multiple QdrantPoints to the collection in batch."""
