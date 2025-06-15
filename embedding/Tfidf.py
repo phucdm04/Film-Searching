@@ -16,9 +16,9 @@ class TruncatedSVD:
         
 
     def fit(self, X: np.ndarray):
-        # X dạng ma trận (samples x features)
+        # X dạng ma trận (terms - documents)
         # Trung bình hoá X theo chiều features
-        self.mean_ = np.mean(X, axis=0)
+        # self.mean_ = np.mean(X, axis=0)
 
         # SVD đầy đủ
         U, S, VT = np.linalg.svd(X, full_matrices=False)
@@ -125,8 +125,7 @@ class TEmbedder:
             pass
         else:
             raise ValueError(f"Unsupported norm: {self.norm}")
-
-        return tfidf_matrix.T # return term-doc
+        return tfidf_matrix.T # đổi thành term - document
 
     
     def fit(self, documents: List[str]) -> None:
@@ -169,28 +168,25 @@ class TEmbedder:
             self.lsa.plot_cumulative_variance(threshold = threshold, n_component=best_n)
         return best_n
 
-
     def transform_doc(self, documents: List[str]) -> np.ndarray:
         tfidf_matrix = self._create_tfidf_matrix(documents)
-        print(tfidf_matrix)
         return self.lsa.transform(tfidf_matrix).T # each row is doc
 
 
 if __name__ == "__main__":
     docs = [
-        "cat eats fish",
-        "dog chases cat",
-        "fish swims in river",
-        "cat and dog play together"
+        "dog cat hamster pets",
+        "dog chasing cat",
+        "cat hiding dog",
+        "hamster sleeping",
+        "dog protects house",
+        "pets cute"
     ]
 
-    query = "cat chases mouse"
-    # Chỉ lấy 5 từ phổ biến nhất và giảm chiều còn 2
-    embedder = TEmbedder(max_features=None, n_components=None)
+    embedder = TEmbedder(max_features=None, n_components=4, smooth_idf=False, norm=None)
     embedder.fit(docs)
     X = embedder.transform_doc(docs)
 
-    print("Shape:", X.shape)  # -> (4, 2)
-    # print("Vocab:", embedder.vocab)
-    print(X)
-    print(embedder.transform_doc([query]))
+    print("Shape:", X.shape) # -> (6,4)
+    print("Vocab:", embedder.vocab)
+    print(X.round(4)) # each row stand for each doc
