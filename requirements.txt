@@ -69,3 +69,4 @@ matplotlib
 tqdm
 scipy
 pydantic
+numpy

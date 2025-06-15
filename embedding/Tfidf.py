@@ -16,17 +16,18 @@ class TruncatedSVD:
         
 
     def fit(self, X: np.ndarray):
-        # X dạng ma trận (samples x features)
+        # X dạng ma trận (terms - documents)
         # Trung bình hoá X theo chiều features
-        self.mean_ = np.mean(X, axis=0)
+        # self.mean_ = np.mean(X, axis=0)
 
         # SVD đầy đủ
         U, S, VT = np.linalg.svd(X, full_matrices=False)
 
         # Giữ lại n_components đầu
         if self.n_components is None:
-            self.n_components = X.shape[1]
-        self.components_ = VT[:self.n_components, :]
+            self.n_components = X.shape[0] # change to [1] if is document-term
+        # self.components_ = VT[:self.n_components, :]
+        self.components_ = U.T[:self.n_components, :]
         self.singular_values_ = S[:self.n_components]
 
         # Tính explained variance ratio
@@ -41,7 +42,8 @@ class TruncatedSVD:
             raise ValueError("Model chưa fit dữ liệu!")
         
         # Chiếu dữ liệu lên các thành phần chính
-        return np.dot(X, self.components_.T)
+        # return np.dot(X, self.components_.T) # X ~ U_k Sigma_k VT_k -> X (VT_k)^-1 ~ U_k Sigma_k -> X VT_k ~ U_k Sigma_k
+        return self.components_ @ X # U^T_k
 
     def choose_n_components(self, threshold=0.95):
         """
@@ -123,8 +125,7 @@ class TEmbedder:
             pass
         else:
             raise ValueError(f"Unsupported norm: {self.norm}")
-
-        return tfidf_matrix
+        return tfidf_matrix.T # đổi thành term - document
 
     
     def fit(self, documents: List[str]) -> None:
@@ -158,6 +159,7 @@ class TEmbedder:
             }
 
         tfidf_matrix = self._create_tfidf_matrix(documents)
+        print(tfidf_matrix)
         self.lsa.fit(tfidf_matrix)
 
     def find_best_n_components(self, threshold: float = 0.95, plot: bool= True) -> int:
@@ -166,27 +168,25 @@ class TEmbedder:
             self.lsa.plot_cumulative_variance(threshold = threshold, n_component=best_n)
         return best_n
 
-
     def transform_doc(self, documents: List[str]) -> np.ndarray:
         tfidf_matrix = self._create_tfidf_matrix(documents)
-        return self.lsa.transform(tfidf_matrix)
+        return self.lsa.transform(tfidf_matrix).T # each row is doc
 
 
 if __name__ == "__main__":
     docs = [
-        "cat eats fish",
-        "dog chases cat",
-        "fish swims in river",
-        "cat and dog play together"
+        "dog cat hamster pets",
+        "dog chasing cat",
+        "cat hiding dog",
+        "hamster sleeping",
+        "dog protects house",
+        "pets cute"
     ]
 
-    query = "cat chases mouse"
-    # Chỉ lấy 5 từ phổ biến nhất và giảm chiều còn 2
-    embedder = TEmbedder(max_features=None, n_components=None)
-    embedder.fit(docs, plot=True)
-    X = embedder.transform(docs)
+    embedder = TEmbedder(max_features=None, n_components=4, smooth_idf=False, norm=None)
+    embedder.fit(docs)
+    X = embedder.transform_doc(docs)
 
-    print("Shape:", X.shape)  # -> (4, 2)
+    print("Shape:", X.shape) # -> (6,4)
     print("Vocab:", embedder.vocab)
-    print(X)
-    print(embedder.transform([query]))
+    print(X.round(4)) # each row stand for each doc

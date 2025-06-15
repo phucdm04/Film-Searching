@@ -95,7 +95,6 @@ def get_all_points(qdrant_client: QdrantClient, collection_name: str, limit: int
         print(f"Failed to retrieve points from collection '{collection_name}': {e}")
         return [], None
 
-
 def insert_points_batch_to_qdrant(
     qdrant_client,
     collection_name: str,
@@ -189,7 +188,7 @@ def search_points(qdrant_client: QdrantClient, collection_name: str, query_vecto
         return search_result
         
     except Exception as e:
-        print(f"Failed to search points: {e}")
+        # print(f"Failed to search points: {e}")
         return []
 
 def delete_point(qdrant_client: QdrantClient, collection_name: str, point_id: Union[int, str]):
