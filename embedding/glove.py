@@ -140,48 +140,6 @@ def build_cooccur_matrix(sentences, word2id, window_size=5):
     cooccur_data = [(i, j, x_ij) for (i, j), x_ij in cooccur.items()]
     return cooccur_data
 
-import sys
-import os
-
-# Add project root to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from preprocessing.preprocessing import LSASVDPipeline, WordEmbeddingPipeline
-from database_connector.qdrant_connector import search_points, connect_to_qdrant
-
-client = connect_to_qdrant(os.getenv('QDRANT_URL'), os.getenv('QDRANT_KEY'))
-
-def search_query(query_text, model_name):
-    path = f"./embedding/trained_models/{model_name}.pkl"
-
-    with open(path, 'rb') as f:
-        print(model_name)
-        embedder = pickle.load(f)
-
-    # Chọn pipeline tương ứng
-    if model_name == "tfidf":
-        pipeline = LSASVDPipeline()
-        processed_query = pipeline.preprocess(query_text)
-    elif model_name == "hellinger_pca":
-        pipeline = WordEmbeddingPipeline()
-        processed_query = pipeline.preprocess_single_text(query_text)
-    elif model_name == "glove":
-        glove = GloVe.from_pretrained(path)
-        processed_query = glove.encode(query_text)
-    else:
-        raise ValueError(f"Model chưa được hỗ trợ.")
-
-    # Tiền xử lý + vector hóa
-    if model_name in ["tfidf", "hellinger_pca"]:
-        embedded_query = embedder.transform_docs([processed_query])[0] # add [0] to make sure shape is (n, )
-        results = search_points(client, model_name, embedded_query)
-    elif model_name == "glove":
-        embedded_query = processed_query
-        results = search_points(client, model_name, embedded_query)
-
-    return results
-
-
 if __name__ == "__main__":
     # sentences = get_sentences()
 
@@ -207,5 +165,3 @@ if __name__ == "__main__":
     #     }, f)
 
     # print("Done.")
-
-    print(search_query("Film which have a spider main", "glove"))
