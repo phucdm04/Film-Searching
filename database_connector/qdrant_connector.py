@@ -10,7 +10,9 @@ def connect_to_qdrant(qdrant_uri, api_key):
     """Connect to Qdrant client and verify the connection."""
     try:
 
+
         client = QdrantClient(url=qdrant_uri, api_key=api_key, timeout=60)
+
         # Try listing collections to verify connection
         _ = client.get_collections()
         print("Successfully connected to Qdrant!")
@@ -95,6 +97,7 @@ def get_all_points(qdrant_client: QdrantClient, collection_name: str, limit: int
         print(f"Failed to retrieve points from collection '{collection_name}': {e}")
         return [], None
 
+
 def insert_points_batch_to_qdrant(
     qdrant_client,
     collection_name: str,
@@ -103,6 +106,7 @@ def insert_points_batch_to_qdrant(
     max_retries: int = 3
 ):
     """Insert multiple QdrantPoints to the collection in batches with retry support."""
+
     try:
         if not qdrant_points:
             print("No points to insert")
@@ -153,9 +157,11 @@ def insert_points_batch_to_qdrant(
         print(f"Successfully inserted {total_inserted} total points in batches")
         return True
 
+
     except Exception as e:
         print(f"Failed to insert points in batch: {e}")
         return False
+
 
 def search_points(qdrant_client: QdrantClient, collection_name: str, query_vector: List[float], 
                  limit: int = 10, score_threshold: Optional[float] = None, 
@@ -184,11 +190,13 @@ def search_points(qdrant_client: QdrantClient, collection_name: str, query_vecto
             with_payload=True
         )
         
+
         # print(f"Found {len(search_result)} similar points")
         return search_result
         
     except Exception as e:
         # print(f"Failed to search points: {e}")
+
         return []
 
 def delete_point(qdrant_client: QdrantClient, collection_name: str, point_id: Union[int, str]):

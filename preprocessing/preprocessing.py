@@ -64,8 +64,6 @@ class LSASVDPipeline:
     def batch(self, texts: List[str], use_stemming: bool = True) -> List[str]:
         return [self.preprocess(txt, use_stemming) for txt in texts]
 
-
-
 ### Word Embedding preprocessing classs
 class WordEmbeddingPipeline:
     """
