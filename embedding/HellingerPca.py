@@ -64,7 +64,7 @@ class PCA:
 
         return n_components
 
-    def plot_cumulative_variance(self, threshold = 0.95):
+    def plot_cumulative_variance(self, threshold = 0.95, n_component = None):
         if self.explained_variance_ratio_ is None:
             raise RuntimeError("Bạn cần gọi .fit() trước khi vẽ biểu đồ explained variance.")
 
@@ -73,7 +73,7 @@ class PCA:
         
         plt.plot(range(1, len(cum_var)+1), cum_var, linestyle='-')
         if threshold is not None:
-            n_component = self.choose_n_components(threshold)
+            n_component = self.choose_n_components(threshold) if n_component is None else n_component
             plt.axvline(x=n_component, color='blue', linestyle='--', label=f'Selected Components = {n_component}')
             plt.axhline(y=threshold, color='red', linestyle='--', label=f'Remained Information = {threshold * 100}%')
         plt.xlabel("Number of Components")
@@ -134,7 +134,8 @@ class HPEmbedder:
                         cooc_matrix[word_idx, neighbor_idx] += 1  # += vì dok_matrix hỗ trợ cộng dồn
 
         self.vocab = vocab
-        return cooc_matrix.toarray()
+        cooc_matrix = cooc_matrix.toarray()
+        return cooc_matrix / cooc_matrix.sum(axis=1, keepdims=True)
 
     def _hellinger_transform(self, X: np.ndarray) -> np.ndarray:
         X = X.astype(np.float64)
@@ -143,13 +144,17 @@ class HPEmbedder:
         X_norm = X / X_sum
         return np.sqrt(X_norm)    
 
-    def fit(self, docs: List[str], plot: bool =False):
+    def fit(self, docs: List[str]):
         cooc_matrix = self._build_cooccurrence_matrix(docs)
+        
         X_hel = self._hellinger_transform(cooc_matrix)
         self.embeddings = self.pca.fit_transform(X_hel)
-        if plot:
-            self.pca.plot_cumulative_variance()
 
+    def find_best_n_components(self, threshold: float = 0.95, plot: bool= True) -> int:
+        best_n = self.pca.choose_n_components(threshold)
+        if plot:
+            self.pca.plot_cumulative_variance(threshold = threshold, n_component=best_n)
+        return best_n
     # Embed words
     def transform_word(self, docs: List[str]) -> np.ndarray:
         if self.vocab is None:
@@ -158,8 +163,8 @@ class HPEmbedder:
         X_hel = self._hellinger_transform(cooc_matrix)
         return self.pca.transform(X_hel)
 
-    # embed docs
-    def transform_docs(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
+    # embed doc
+    def transform_doc(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
         """
         Tính vector biểu diễn cho mỗi văn bản trong `docs` bằng cách
         trung bình các vector từ trong câu (nếu từ đó có trong vocab).
@@ -203,5 +208,4 @@ if __name__ == "__main__":
     embedder = HPEmbedder()
     embedder.fit(docs, plot=False)
     print(embedder.transform(docs)) # word embedding
-    print(embedder.transform_docs(docs)) # sentence embedding
-    
+    print(embedder.transform_doc(docs)) # sentence embedding

@@ -16,17 +16,18 @@ class TruncatedSVD:
         
 
     def fit(self, X: np.ndarray):
-        # X dạng ma trận (samples x features)
+        # X dạng ma trận (terms - documents)
         # Trung bình hoá X theo chiều features
-        self.mean_ = np.mean(X, axis=0)
+        # self.mean_ = np.mean(X, axis=0)
 
         # SVD đầy đủ
         U, S, VT = np.linalg.svd(X, full_matrices=False)
 
         # Giữ lại n_components đầu
         if self.n_components is None:
-            self.n_components = X.shape[1]
-        self.components_ = VT[:self.n_components, :]
+            self.n_components = X.shape[0] # change to [1] if is document-term
+        # self.components_ = VT[:self.n_components, :]
+        self.components_ = U.T[:self.n_components, :]
         self.singular_values_ = S[:self.n_components]
 
         # Tính explained variance ratio
@@ -41,7 +42,8 @@ class TruncatedSVD:
             raise ValueError("Model chưa fit dữ liệu!")
         
         # Chiếu dữ liệu lên các thành phần chính
-        return np.dot(X, self.components_.T)
+        # return np.dot(X, self.components_.T) # X ~ U_k Sigma_k VT_k -> X (VT_k)^-1 ~ U_k Sigma_k -> X VT_k ~ U_k Sigma_k
+        return self.components_ @ X # U^T_k
 
     def choose_n_components(self, threshold=0.95):
         """
@@ -58,7 +60,7 @@ class TruncatedSVD:
 
         return n_components
 
-    def plot_cumulative_variance(self, threshold = 0.95):
+    def plot_cumulative_variance(self, threshold = 0.95, n_component = None):
         if self.explained_variance_ratio_ is None:
             raise RuntimeError("Bạn cần gọi .fit() trước khi vẽ biểu đồ explained variance.")
 
@@ -67,7 +69,7 @@ class TruncatedSVD:
         
         plt.plot(range(1, len(cum_var)+1), cum_var, linestyle='-')
         if threshold is not None:
-            n_component = self.choose_n_components(threshold)
+            n_component = self.choose_n_components(threshold) if n_component is None else n_component
             plt.axvline(x=n_component, color='blue', linestyle='--', label=f'Selected Components = {n_component}')
             plt.axhline(y=threshold, color='red', linestyle='--', label=f'Remained Information = {threshold * 100}%')
         plt.xlabel("Number of Components")
@@ -98,7 +100,8 @@ class TEmbedder:
         """Tính TF-IDF và chuẩn hóa"""
         tfidf_matrix = np.zeros((len(documents), len(self.vocab)))
 
-        for i, doc in enumerate(tqdm(documents, desc="Creating Tf-Idf matrix...")):
+        # for i, doc in enumerate(tqdm(documents, desc="Creating Tf-Idf matrix...")):
+        for i, doc in enumerate(documents):
             tokens = doc.lower().split()
             tf = Counter(tokens)
             doc_len = len(tokens)
@@ -122,11 +125,10 @@ class TEmbedder:
             pass
         else:
             raise ValueError(f"Unsupported norm: {self.norm}")
-
-        return tfidf_matrix
+        return tfidf_matrix.T # đổi thành term - document
 
     
-    def fit(self, documents: List[str], plot: bool = False) -> None:
+    def fit(self, documents: List[str]) -> None:
         """Xây dựng từ vựng và tính IDF"""
         N = len(documents)
         df = Counter()
@@ -157,30 +159,34 @@ class TEmbedder:
             }
 
         tfidf_matrix = self._create_tfidf_matrix(documents)
+        print(tfidf_matrix)
         self.lsa.fit(tfidf_matrix)
-        if plot:
-            self.lsa.plot_cumulative_variance()
 
-    def transform_docs(self, documents: List[str]) -> np.ndarray:
+    def find_best_n_components(self, threshold: float = 0.95, plot: bool= True) -> int:
+        best_n = self.lsa.choose_n_components(threshold)
+        if plot:
+            self.lsa.plot_cumulative_variance(threshold = threshold, n_component=best_n)
+        return best_n
+
+    def transform_doc(self, documents: List[str]) -> np.ndarray:
         tfidf_matrix = self._create_tfidf_matrix(documents)
-        return self.lsa.transform(tfidf_matrix)
+        return self.lsa.transform(tfidf_matrix).T # each row is doc
 
 
 if __name__ == "__main__":
     docs = [
-        "cat eats fish",
-        "dog chases cat",
-        "fish swims in river",
-        "cat and dog play together"
+        "dog cat hamster pets",
+        "dog chasing cat",
+        "cat hiding dog",
+        "hamster sleeping",
+        "dog protects house",
+        "pets cute"
     ]
 
-    query = "cat chases mouse"
-    # Chỉ lấy 5 từ phổ biến nhất và giảm chiều còn 2
-    embedder = TEmbedder(max_features=None, n_components=None)
-    embedder.fit(docs, plot=True)
-    X = embedder.transform(docs)
+    embedder = TEmbedder(max_features=None, n_components=4, smooth_idf=False, norm=None)
+    embedder.fit(docs)
+    X = embedder.transform_doc(docs)
 
-    print("Shape:", X.shape)  # -> (4, 2)
+    print("Shape:", X.shape) # -> (6,4)
     print("Vocab:", embedder.vocab)
-    print(X)
-    print(embedder.transform([query]))
+    print(X.round(4)) # each row stand for each doc

@@ -1,6 +1,6 @@
 import numpy as np
 from collections import Counter
-from typing import List, Dict, Optional
+from typing import List, Optional, Dict, Union
 
 class BagOfWords:
     def __init__(self, 
@@ -226,3 +226,160 @@ class BagOfWords:
         
         self.is_fitted = True
         print(f"Vocabulary has been loaded from {filepath}")
+
+class SVDModel:
+    """
+    SVD class for dimensionality reduction of Bag of Words matrices
+    Built from scratch using eigenvalue decomposition
+    """
+    def __init__(self, n_components=100):
+        self.n_components = n_components
+        self.U = None
+        self.s = None  # singular values
+        self.Vt = None
+        self.mean_vec = None
+        self.is_fitted = False
+        self.explained_variance_ratio_ = None
+
+    def _svd_from_scratch(self, X):
+        """
+        SVD implementation using eigenvalue decomposition.
+        X = U * S * Vt
+        """
+        m, n = X.shape
+
+        # Compute covariance matrix
+        XtX = X.T @ X
+        eigenvals, V = np.linalg.eigh(XtX)
+
+        # Sort eigenvalues and corresponding eigenvectors in descending order
+        sorted_idx = np.argsort(eigenvals)[::-1]
+        eigenvals = eigenvals[sorted_idx]
+        V = V[:, sorted_idx]
+
+        # Remove non-positive eigenvalues
+        positive_mask = eigenvals > 1e-10
+        eigenvals = eigenvals[positive_mask]
+        V = V[:, positive_mask]
+
+        # Compute singular values and U
+        singular_values = np.sqrt(eigenvals)
+        r = len(singular_values)
+        U = np.zeros((m, r))
+        for i in range(r):
+            U[:, i] = (X @ V[:, i]) / singular_values[i]
+
+        # Normalize sign consistency
+        for i in range(r):
+            if U[0, i] < 0:
+                U[:, i] *= -1
+                V[:, i] *= -1
+
+        return U, singular_values, V.T
+
+    def fit(self, X):
+        """Fit SVD to input matrix X"""
+        X = np.asarray(X, dtype=np.float64)
+        self.mean_vec = np.mean(X, axis=0)
+        X_centered = X - self.mean_vec
+
+        self.U, self.s, self.Vt = self._svd_from_scratch(X_centered)
+
+        # Truncate to top n_components
+        if self.n_components < len(self.s):
+            self.U = self.U[:, :self.n_components]
+            self.s = self.s[:self.n_components]
+            self.Vt = self.Vt[:self.n_components, :]
+
+        total_var = np.sum(self.s ** 2)
+        self.explained_variance_ratio_ = (self.s ** 2) / total_var if total_var > 0 else np.zeros(len(self.s))
+        self.is_fitted = True
+        return self
+
+    def transform(self, X):
+        """Project input data X to reduced dimension space"""
+        if not self.is_fitted:
+            raise ValueError("SVD must be fitted before transform.")
+        X = np.asarray(X, dtype=np.float64)
+        X_centered = X - self.mean_vec
+        return X_centered @ self.Vt.T
+
+    def fit_transform(self, X):
+        """Fit and transform input data in one call"""
+        self.fit(X)
+        return self.U * self.s
+
+    def inverse_transform(self, X_transformed):
+        """Reconstruct data from reduced dimension"""
+        if not self.is_fitted:
+            raise ValueError("SVD must be fitted before inverse_transform.")
+        X_transformed = np.asarray(X_transformed)
+        return X_transformed @ self.Vt + self.mean_vec
+
+class BOW_SVD_Embedding:
+    """
+    Embedding pipeline = Bag-of-Words + SVD
+
+    Args:
+        - bow_args (Optional[Dict] = None): Config for BagOfWords
+            + min_word_freq: min frequency of a word, defalut = 1
+            + max_features: max features for bow, default = None
+            + tokenizer: strategy to split sentence into single words, default = 'whitespace'
+        - dim_reduc_args (Optional[Dict] = None): Config for SVDModel
+            + n_components: number of features after reduction, default = 100
+    """
+    def __init__(
+        self,
+        bow_args: Optional[Dict] = None,
+        dim_reduc_args: Optional[Dict] = None,
+    ):
+        self.bow_args = bow_args or {}
+        self.dim_reduc_args = dim_reduc_args or {}
+
+        self.bow = self._init_bow()
+        self.dim_reduc = self._init_dim_reduc()
+        self._is_fitted = False
+
+    def _init_bow(self) -> BagOfWords:
+        return BagOfWords(
+            min_word_freq=self.bow_args.get("min_word_freq", 1),
+            max_features=self.bow_args.get("max_features", None),
+            tokenizer=self.bow_args.get("tokenizer", "whitespace")
+        )
+
+    def _init_dim_reduc(self) -> SVDModel:
+        return SVDModel(
+            n_components=self.dim_reduc_args.get("n_components", 100)
+        )
+
+    def fit(self, documents: Union[List[str], str]) -> "BOW_SVD_Embedding":
+        texts = [documents] if isinstance(documents, str) else documents
+        bow_matrix = self.bow.fit_transform(texts)
+        self.dim_reduc.fit(bow_matrix)
+        self._is_fitted = True
+        return self
+
+    def transform(self, documents: Union[List[str], str]) -> Union[np.ndarray, np.ndarray]:
+        if not self._is_fitted:
+            raise RuntimeError("Pipeline must be fit before calling transform.")
+
+        is_single = isinstance(documents, str)
+        texts = [documents] if is_single else documents
+
+        bow_matrix = self.bow.transform(texts)
+        reduced = self.dim_reduc.transform(bow_matrix)
+
+        return reduced[0] if is_single else reduced
+
+    def fit_transform(self, documents: Union[List[str], str]) -> Union[np.ndarray, np.ndarray]:
+        texts = [documents] if isinstance(documents, str) else documents
+        bow_matrix = self.bow.fit_transform(texts)
+        reduced = self.dim_reduc.fit_transform(bow_matrix)
+        self._is_fitted = True
+        return reduced[0] if isinstance(documents, str) else reduced
+
+    def get_feature_names(self) -> List[str]:
+        return self.bow.get_feature_names()
+
+    def get_vocabulary_size(self) -> int:
+        return self.bow.get_vocabulary_size()

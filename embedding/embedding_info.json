@@ -1,0 +1,57 @@
+[
+    {
+        "model_name": "tfidf.pkl",
+        "qdrant_collection_name": "tfidf",
+        "qdrant_vector_size": 1423,
+        "metric": {
+            "Precision@10": 0.07174633222905617,
+            "Recall@10": 0.7141504969238051,
+            "F1@10": 0.1303474881326305,
+            "MRR": 0.5617873857225493,
+            "MAP": 0.5617873857225493,
+            "nDCG@10": 0.5983138708047724,
+            "Retrieve time": 0.23562045927810488
+        }
+    },
+    {
+        "model_name": "hellinger_pca.pkl",
+        "qdrant_collection_name": "hellinger_pca",
+        "qdrant_vector_size": 656,
+        "metric": {
+            "Precision@10": 0.038144817794604685,
+            "Recall@10": 0.3809749171793658,
+            "F1@10": 0.06933987293665576,
+            "MRR": 0.2650074369549048,
+            "MAP": 0.2650074369549048,
+            "nDCG@10": 0.29266681716583437,
+            "Retrieve time": 0.22971522012594126
+        }
+    },
+    {
+        "model_name": "bow.pkl",
+        "qdrant_collection_name": "bow",
+        "qdrant_vector_size": 1647,
+        "metric": {
+            "Precision@10": 0.0805,
+            "Recall@10": 0.7998,
+            "F1@10": 0.1461,
+            "MRR": 0.6985,
+            "MAP": 0.6985,
+            "nDCG@10": 0.7229,
+            "Retrieve time": 0.2463
+        },
+        {
+            "model_name": "ppmi.pkl",
+            "qdrant_collection_name": "ppmi",
+            "qdrant_vector_size": 1805,
+            "metric": {
+                "Precision@10": 0.0451,
+                "Recall@10": 0.4491,
+                "F1@10": 0.0820,
+                "MRR": 0.3965,
+                "MAP": 0.3965,
+                "nDCG@10": 0.4088,
+                "Retrieve time": 0.2337
+            }
+        }
+    ]
