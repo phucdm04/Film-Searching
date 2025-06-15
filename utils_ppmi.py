@@ -4,7 +4,7 @@ from preprocessing.data_models import QdrantPoint
 import json
 import re
 
-# Ham normalize token - rat quan trong đe unify token
+
 def normalize_token(text: str) -> str:
     text = text.lower().strip()
     text = re.sub(r"[^a-z0-9 ]+", "", text)
