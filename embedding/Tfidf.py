@@ -125,7 +125,12 @@ class TEmbedder:
             pass
         else:
             raise ValueError(f"Unsupported norm: {self.norm}")
+<<<<<<< HEAD
         return tfidf_matrix.T # đổi thành term - document
+=======
+
+        return tfidf_matrix.T # return term-doc
+>>>>>>> MPhuc-branch
 
     
     def fit(self, documents: List[str]) -> None:
@@ -168,8 +173,15 @@ class TEmbedder:
             self.lsa.plot_cumulative_variance(threshold = threshold, n_component=best_n)
         return best_n
 
+<<<<<<< HEAD
     def transform_doc(self, documents: List[str]) -> np.ndarray:
         tfidf_matrix = self._create_tfidf_matrix(documents)
+=======
+
+    def transform_doc(self, documents: List[str]) -> np.ndarray:
+        tfidf_matrix = self._create_tfidf_matrix(documents)
+        print(tfidf_matrix)
+>>>>>>> MPhuc-branch
         return self.lsa.transform(tfidf_matrix).T # each row is doc
 
 
@@ -183,6 +195,7 @@ if __name__ == "__main__":
         "pets cute"
     ]
 
+<<<<<<< HEAD
     embedder = TEmbedder(max_features=None, n_components=4, smooth_idf=False, norm=None)
     embedder.fit(docs)
     X = embedder.transform_doc(docs)
@@ -190,3 +203,15 @@ if __name__ == "__main__":
     print("Shape:", X.shape) # -> (6,4)
     print("Vocab:", embedder.vocab)
     print(X.round(4)) # each row stand for each doc
+=======
+    query = "cat chases mouse"
+    # Chỉ lấy 5 từ phổ biến nhất và giảm chiều còn 2
+    embedder = TEmbedder(max_features=None, n_components=None)
+    embedder.fit(docs)
+    X = embedder.transform_doc(docs)
+
+    print("Shape:", X.shape)  # -> (4, 2)
+    # print("Vocab:", embedder.vocab)
+    print(X)
+    print(embedder.transform_doc([query]))
+>>>>>>> MPhuc-branch
