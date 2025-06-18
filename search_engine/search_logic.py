@@ -6,7 +6,8 @@ import pickle
 from dotenv import load_dotenv
 from database_connector.qdrant_connector import connect_to_qdrant, search_points
 from preprocessing.preprocessing import WordEmbeddingPipeline, LSASVDPipeline
-from embedding.ppmi import PPMIEmbedder, TruncatedSVD 
+from embedding.FastText import FastTextLSAEmbedder, FastText, TruncatedSVD
+
 
 
 
@@ -33,6 +34,21 @@ def embed_with_glove(tokens, embedder):
 
     return np.mean(vectors, axis=0)
 
+import numpy as np
+
+def embed_with_word2vec(tokens, embedder):
+    embedding_matrix = embedder['embedding']
+    word2idx = embedder['word2idx']
+
+    vectors = []
+    for token in tokens:
+        if token in word2idx:
+            idx = word2idx[token]
+            vectors.append(embedding_matrix[idx])
+    if not vectors:
+        return np.zeros(embedding_matrix.shape[1])
+    return np.mean(vectors, axis=0)
+
 
 
 def search_query(query_text, model_name):
@@ -44,47 +60,60 @@ def search_query(query_text, model_name):
     if model_name == "tfidf":
         pipeline = LSASVDPipeline()
         processed_query = pipeline.preprocess(query_text)
-        # Tiền xử lý + vector hóa
         embedded_query = embedder.transform_docs([processed_query])[0] # add [0] to make sure shape is (n, )
+        results = search_points(client, model_name, embedded_query)
+
+    elif model_name == "ppmi":
+        pipeline = LSASVDPipeline()
+        processed_query = pipeline.preprocess(query_text)  
+        embedded_query = embedder.transform_docs([processed_query])[0]  
+        results = search_points(client, model_name, embedded_query)
+    elif model_name == "bow":
+        pipeline = LSASVDPipeline()
+        processed_query = pipeline.preprocess(query_text)
+        embedded_query = embedder.transform([processed_query])[0] # add [0] to make sure shape is (n, )
         results = search_points(client, model_name, embedded_query)
 
     elif model_name == "hellinger_pca":
         pipeline = WordEmbeddingPipeline()
         processed_query = pipeline.preprocess_single_text(query_text)
-        # Tiền xử lý + vector hóa
-        embedded_query = embedder.transform_docs([processed_query])[0] # add [0] to make sure shape is (n, )
+        embedded_query = embedder.transform_doc([processed_query])[0] # add [0] to make sure shape is (n, )
         results = search_points(client, model_name, embedded_query)
-
-    elif model_name == "bow":
-        pipeline = LSASVDPipeline()
-        processed_query = pipeline.preprocess(query_text)
-        embedded_query = embedder.transform([processed_query])[0] # add [0] to make sure shape is (n, )
-        collection_name = "svd_bow"
-        results = search_points(client, collection_name, embedded_query)
-
-
-        # raise ValueError(f"Model chưa được hỗ trợ.")
+        
     elif model_name == "glove":
         pipeline = WordEmbeddingPipeline()
-        processed_query = pipeline.preprocess_single_text(query_text)  # list of tokens
+        processed_query = pipeline.preprocess_single_text(query_text)  
         embedded_query = embed_with_glove(processed_query, embedder)
+        results = search_points(client, model_name, embedded_query)
 
-        # raise ValueError(f"Model chưa được hỗ trợ.")
-    elif model_name == "ppmi":
+    elif model_name == "fasttext":
         pipeline = WordEmbeddingPipeline()
-        processed_query = pipeline.preprocess_single_text(query_text)  # ví dụ: list token sau tiền xử lý
-        embedded_query = embedder.transform_docs([processed_query])[0]  # giả sử có transform_docs
-        collection_name = "ppmi"  # tên collection Qdrant bạn dùng
+        processed_query = pipeline.preprocess_single_text(query_text)
+        embedded_query = embedder.transform([processed_query])[0] # add [0] to make sure shape is (n, )
+        collection_name = "fastText"
         results = search_points(client, collection_name, embedded_query)
         # raise ValueError(f"Model chưa được hỗ trợ.")
-    elif model_name == "fasttext":
-        raise ValueError(f"Model chưa được hỗ trợ.")
+    
     elif model_name == "word2vec":
-        raise ValueError(f"Model chưa được hỗ trợ.")
+        pipeline = WordEmbeddingPipeline()
+        processed_query = pipeline.preprocess_single_text(query_text)  # list of tokens
+        embedded_query = embed_with_word2vec(processed_query, embedder)
+        collection_name = "word2Vec"
+        results = search_points(client, collection_name, embedded_query)
     else:
         raise ValueError(f"Model chưa được hỗ trợ.")
 
-    # results = search_points(client, model_name, embedded_query)
-
-
     return results
+def main():
+    query = "A Billionaire discovers his true destiny after stumbling upon a haunted castle and fights to protect the castle's legacy."
+    model_name = "fasttext"
+    
+    results = search_query(query, model_name)
+
+    print("Kết quả tìm kiếm:")
+    for i, hit in enumerate(results, 1):
+        film_name = hit.payload.get('metadata', {}).get('film_name', 'N/A')
+        score = hit.score
+        print(f"{i}. Tên phim: {film_name} | Score: {score:.4f}")
+if __name__ == "__main__":
+    main()
