@@ -5,7 +5,9 @@ body {
     color: #ff9900;
     text-align: center;
   }
-  
+  .skip {
+    grid-column-start: 3; /* nhảy tới cột thứ 3, bỏ cột thứ 2 */
+  }
   .movie-card h3 {
     font-size: 22px;
     font-weight: bold;

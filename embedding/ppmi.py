@@ -2,57 +2,63 @@ import os
 import sys
 import time
 import pickle
+import logging
 import numpy as np
-import matplotlib.pyplot as plt
-from collections import Counter
+from collections import Counter, defaultdict
 from typing import List, Dict, Union, Optional
 from tqdm import tqdm
-from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor
+from scipy import sparse
 
-sys.stdout.reconfigure(encoding='utf-8')
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-load_dotenv()
+# Setup logger
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-from database_connector.mongodb_connector import load_documents
+
+def l2_normalize(matrix: np.ndarray, eps=1e-8) -> np.ndarray:
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    norms = np.where(norms == 0, eps, norms)
+    return matrix / norms
+
 
 
 class TruncatedSVD:
     def __init__(self, n_components: Optional[int] = None) -> None:
-        self.n_components: Optional[int] = n_components
-        self.components_: Optional[np.ndarray] = None
-        self.singular_values_: Optional[np.ndarray] = None
-        self.explained_variance_ratio_: Optional[np.ndarray] = None
-        self.mean_: Optional[np.ndarray] = None
-        self.fitted: bool = False
 
-    def fit(self, X: np.ndarray) -> None:
-        self.mean_ = np.mean(X, axis=0)
-        X_centered = X - self.mean_
-        U, S, VT = np.linalg.svd(X_centered, full_matrices=False)
+        self.n_components = n_components
+        self.components_ = None
+        self.singular_values_ = None
+        self.explained_variance_ratio_ = None
+        self.fitted = False
 
-        if self.n_components is None:
-            self.n_components = X.shape[1]
+    def fit(self, X: sparse.csr_matrix) -> None:
+        if not sparse.isspmatrix_csr(X):
+            raise ValueError("Input must be sparse csr_matrix")
 
-        self.components_ = VT[:self.n_components]
-        self.singular_values_ = S[:self.n_components]
+        U, S, VT = sparse.linalg.svds(X, k=self.n_components)
+        order = np.argsort(-S)
+        S, VT = S[order], VT[order]
+        self.components_ = VT
+        self.singular_values_ = S
         total_var = np.sum(S ** 2)
-        comp_var = S[:self.n_components] ** 2
+        comp_var = S ** 2
         self.explained_variance_ratio_ = comp_var / total_var
         self.fitted = True
 
-    def transform(self, X: np.ndarray) -> np.ndarray:
+    def transform(self, X: sparse.csr_matrix) -> np.ndarray:
         if not self.fitted:
             raise RuntimeError("TruncatedSVD not fit.")
-        X_centered = X - self.mean_
-        return np.dot(X_centered, self.components_.T)
+        return X @ self.components_.T
 
-    def fit_transform(self, X: np.ndarray) -> np.ndarray:
+    def fit_transform(self, X: sparse.csr_matrix) -> np.ndarray:
+
         self.fit(X)
         return self.transform(X)
 
     def choose_n_components(self, threshold: float = 0.95) -> int:
         if not self.fitted:
-            raise RuntimeError("Model does not fit data!")
+
+            raise RuntimeError("Model not fitted.")
+        
         cum_var = np.cumsum(self.explained_variance_ratio_)
         n_comp = int(np.searchsorted(cum_var, threshold) + 1)
         self.n_components = n_comp
@@ -61,34 +67,21 @@ class TruncatedSVD:
         self.explained_variance_ratio_ = self.explained_variance_ratio_[:n_comp]
         return n_comp
 
-    def plot_cumulative_variance(self, threshold: float = 0.95) -> None:
-        if self.explained_variance_ratio_ is None:
-            raise RuntimeError("Call .fit() before plotting.")
-        cum_var = np.cumsum(self.explained_variance_ratio_)
-        plt.figure(figsize=(10, 6))
-        plt.plot(range(1, len(cum_var) + 1), cum_var, marker='o', linestyle='-')
-        if threshold is not None:
-            n_components = np.searchsorted(cum_var, threshold) + 1
-            plt.axvline(x=n_components, color='blue', linestyle='--', label=f'{n_components} components')
-            plt.axhline(y=threshold, color='red', linestyle='--', label=f'{int(threshold*100)}% variance')
-        plt.title("Cumulative Explained Variance by LSA Components (PPMI + LSA)")
-        plt.xlabel("Number of Components")
-        plt.ylabel("Cumulative Explained Variance Ratio")
-        plt.grid(True)
-        plt.legend()
-        plt.tight_layout()
-        plt.show()
-
 
 class PPMIEmbedder:
-    def __init__(self, window_size: int = 2, max_features: Optional[int] = None, n_components: Optional[int] = None) -> None:
-        self.window_size: int = window_size
-        self.max_features: Optional[int] = max_features
-        self.n_components: Optional[int] = n_components
-        self.vocab: Dict[str, int] = {}
-        self.svd: TruncatedSVD = TruncatedSVD(n_components)
-        self.embeddings: Optional[np.ndarray] = None
-        self._original_ppmi: Optional[np.ndarray] = None
+    def __init__(self, window_size=6, max_features=5000, n_components=300, min_count=2, n_jobs=4):
+        self.window_size = window_size
+        self.max_features = max_features
+        self.n_components = n_components
+        self.min_count = min_count
+        self.n_jobs = n_jobs
+
+        self.vocab = {}
+        self.idf = {}
+        self.svd = TruncatedSVD(n_components)
+        self.embeddings = None
+        self.ppmi_sparse = None
+
 
     def _tokenize(self, doc: Union[str, List[str]]) -> List[str]:
         return doc.split() if isinstance(doc, str) else doc
@@ -97,119 +90,136 @@ class PPMIEmbedder:
         counter = Counter()
         for doc in docs:
             counter.update(self._tokenize(doc))
-        if self.max_features:
-            most_common = counter.most_common(self.max_features)
-            self.vocab = {word: i for i, (word, _) in enumerate(most_common)}
-        else:
-            self.vocab = {word: i for i, word in enumerate(counter.keys())}
 
-    def _build_cooc_matrix(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
-        size = len(self.vocab)
-        matrix = np.zeros((size, size), dtype=np.float64)
-        for doc in tqdm(docs, desc="Build a Co-occurrence Matrix"):
+        if self.min_count > 1:
+            counter = Counter({w: c for w, c in counter.items() if c >= self.min_count})
+
+        most_common = counter.most_common(self.max_features)
+        self.vocab = {word: i for i, (word, _) in enumerate(most_common)}
+        self._build_idf(docs)
+
+    def _build_idf(self, docs: List[Union[str, List[str]]]) -> None:
+        N = len(docs)
+        df = Counter()
+        for doc in docs:
+            tokens = set(self._tokenize(doc))
+            for token in tokens:
+                if token in self.vocab:
+                    df[token] += 1
+        self.idf = {w: np.log((N + 1) / (df[w] + 1)) + 1 for w in self.vocab}
+
+    def _build_cooc_worker(self, docs_chunk):
+        cooc = defaultdict(float)
+        for doc in docs_chunk:
             tokens = self._tokenize(doc)
             token_ids = [self.vocab[t] for t in tokens if t in self.vocab]
             for i, center in enumerate(token_ids):
-                start = max(i - self.window_size, 0)
-                end = min(i + self.window_size + 1, len(token_ids))
+                start = max(0, i - self.window_size)
+                end = min(len(token_ids), i + self.window_size + 1)
                 for j in range(start, end):
-                    if i == j:
-                        continue
-                    context = token_ids[j]
-                    matrix[center, context] += 1.0
-        return matrix
+                    if i != j:
+                        context = token_ids[j]
+                        dist = abs(j - i)
+                        weight = 1.0 / (dist ** 0.75)
+                        cooc[(center, context)] += weight
+                        cooc[(context, center)] += weight
+        return cooc
 
-    def _calculate_ppmi(self, M: np.ndarray, eps: float = 1e-8) -> np.ndarray:
-        total = np.sum(M)
-        row_sums = np.sum(M, axis=1, keepdims=True)
-        col_sums = np.sum(M, axis=0, keepdims=True)
-        p_wc = M / total
-        p_w = row_sums / total
-        p_c = col_sums / total
-        with np.errstate(divide='ignore'):
-            pmi = np.log((p_wc + eps) / (p_w @ p_c + eps))
-        return np.maximum(pmi, 0)
+    def _merge_cooc(self, cooc_list):
+        merged = defaultdict(float)
+        for cooc in cooc_list:
+            for key, value in cooc.items():
+                merged[key] += value
+        return merged
 
-    def fit(self, docs: List[Union[str, List[str]]]) -> None:
+    def _build_cooc_sparse_parallel(self, docs):
+        chunks = np.array_split(docs, self.n_jobs)
+        with ThreadPoolExecutor(max_workers=self.n_jobs) as executor:
+            results = list(tqdm(executor.map(self._build_cooc_worker, chunks), total=len(chunks), desc="Building Cooc"))
+        merged = self._merge_cooc(results)
+        rows, cols, data = zip(*[(i, j, v) for (i, j), v in merged.items()])
+        size = len(self.vocab)
+        return sparse.coo_matrix((data, (rows, cols)), shape=(size, size)).tocsr()
+
+    def _calculate_ppmi(self, cooc_matrix: sparse.csr_matrix, eps=1e-12):
+        total_sum = cooc_matrix.sum()
+        row_sums = np.array(cooc_matrix.sum(axis=1)).flatten()
+        col_sums = np.array(cooc_matrix.sum(axis=0)).flatten()
+
+        coo = cooc_matrix.tocoo()
+        p_ij = coo.data / total_sum
+        p_i = row_sums[coo.row] / total_sum
+        p_j = col_sums[coo.col] / total_sum
+        pmi = np.log((p_ij + eps) / (p_i * p_j + eps))
+
+        sppmi = np.maximum(0, pmi) #ppmi chuan
+        mask = sppmi > 0
+        return sparse.coo_matrix(
+            (sppmi[mask], (coo.row[mask], coo.col[mask])),
+            shape=cooc_matrix.shape
+        ).tocsr()
+
+    def fit(self, docs: List[str]):
         self._build_vocab(docs)
-        cooc = self._build_cooc_matrix(docs)
-        ppmi = self._calculate_ppmi(cooc)
-        self.embeddings = self.svd.fit_transform(ppmi)
-        self._original_ppmi = ppmi
+        logging.info(f"Vocab size: {len(self.vocab)}")
+        cooc_sparse = self._build_cooc_sparse_parallel(docs)
+        self.ppmi_sparse = self._calculate_ppmi(cooc_sparse)
+        self.embeddings = l2_normalize(self.svd.fit_transform(self.ppmi_sparse))
 
-    def transform(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
-        if self.embeddings is None:
-            raise RuntimeError("You need to call fit() first.")
-        cooc = self._build_cooc_matrix(docs)
-        ppmi = self._calculate_ppmi(cooc)
-        return self.svd.transform(ppmi)
-
-    def transform_docs(self, docs: List[Union[str, List[str]]]) -> np.ndarray:
-        if self.embeddings is None or not self.vocab:
-            raise RuntimeError("You need to call fit() first.")
+    def transform_docs(self, docs: List[str]) -> np.ndarray:
         dim = self.embeddings.shape[1]
-        doc_vectors: List[np.ndarray] = []
-        for doc in docs:
+        doc_vectors = np.zeros((len(docs), dim), dtype=np.float32)
+
+        for idx, doc in enumerate(docs):
             tokens = self._tokenize(doc)
-            vectors = [self.embeddings[self.vocab[t]] for t in tokens if t in self.vocab]
-            doc_vec = np.mean(vectors, axis=0) if vectors else np.zeros(dim)
-            doc_vectors.append(doc_vec)
-        return np.array(doc_vectors)
+            weighted_sum = np.zeros(dim, dtype=np.float32)
+            total_weight = 0.0
+            for t in tokens:
+                if t in self.vocab:
+                    vec = self.embeddings[self.vocab[t]]
+                    idf_weight = self.idf[t]
+                    weighted_sum += vec * idf_weight
+                    total_weight += idf_weight
 
-    def choose_n_components(self, threshold: float = 0.95) -> int:
-        n_comp = self.svd.choose_n_components(threshold)
-        if self._original_ppmi is not None:
-            self.embeddings = self.svd.transform(self._original_ppmi)
-        return n_comp
+            if total_weight > 0:
+                doc_vectors[idx] = weighted_sum / total_weight
+
+        return l2_normalize(doc_vectors)
+
+    def transform(self, doc: Union[str, List[str]]) -> np.ndarray:
+        if isinstance(doc, str):
+            return self.transform_docs([doc])[0]
+        return self.transform_docs(doc)
 
 
-def train_ppmi_lsa(
+def train_ppmi(
     docs: List[str],
-    max_features: Optional[int] = None,
-    save_path: Optional[str] = None,
-    find_suit_n_component: bool = True
+    max_features: int = 5000,
+    window_size: int = 6,
+    min_count: int = 2,
+    n_components: int = 300,
+    n_jobs: int = 4,
+    save_path: Optional[str] = None
 ) -> PPMIEmbedder:
-    print(f"Starting PPMI training on {len(docs)} documents...")
-    if max_features is None:
-        max_features = int(np.sqrt(len(docs)))
-        print(f"Max_feature not specified, use sqrt(N): {max_features}")
-    else:
-        print(f"Using max_features = {max_features}")
-    embedder = PPMIEmbedder(window_size=4, n_components=None, max_features=max_features)
+
+    logging.info(f"Starting PPMI training on {len(docs)} documents...")
+    embedder = PPMIEmbedder(
+        window_size=window_size,
+        max_features=max_features,
+        n_components=n_components,
+        min_count=min_count,
+        n_jobs=n_jobs
+    )
+
     start_time = time.time()
     embedder.fit(docs)
-    print(f"- Vocabulary size: {len(embedder.vocab)}")
-    print(f"- PPMI matrix shape:: {embedder._original_ppmi.shape}")
-    print(f"- Initial PPMI computation completed in {time.time() - start_time:.2f} seconds")
-    if find_suit_n_component:
-        print("Selecting suitable number of components based on 95% variance threshold...")
-        best_n = embedder.choose_n_components(threshold=0.95)
-        print(f"- Suitable number of components for 95% variance: {best_n}")
-        print("Re-training with optimal number of components...")
-        embedder = PPMIEmbedder(n_components=best_n, max_features=max_features)
-        start_time = time.time()
-        embedder.fit(docs)
-        print(f"Re-training completed in {time.time() - start_time:.2f} seconds")
-    save_path = "./embedding/trained_models/ppmi.pkl" if save_path is None else save_path
+    logging.info(f"PPMI shape: {embedder.ppmi_sparse.shape}")
+    logging.info(f"Training completed in {time.time() - start_time:.2f} seconds")
+
+    save_path = save_path or "./embedding/trained_models/ppmi.pkl"
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     with open(save_path, "wb") as f:
         pickle.dump(embedder, f)
-        print(f"Embedder saved to: {save_path}")
+        logging.info(f"Embedder saved to: {save_path}")
+
     return embedder
-
-
-if __name__ == "__main__":
-    print("Connecting to MongoDB...")
-    uri: str = os.getenv("MONGO_URI")
-    db_name: str = os.getenv("DATABASE_NAME")
-    lsa_collection_name: str = os.getenv("LSA_COLLECTION_NAME")
-    lsa_docs = load_documents(uri, db_name, lsa_collection_name)
-    processed_lsa_docs: List[str] = [doc["cleaned_description"] for doc in lsa_docs]
-    print(f"Loaded {len(processed_lsa_docs)} documents from MongoDB.")
-    embedder = train_ppmi_lsa(
-        processed_lsa_docs,
-        max_features=1200,
-        save_path="./embedding/trained_models/ppmi.pkl",
-        find_suit_n_component=True
-    )
-    print("PPMI training pipeline completed.")

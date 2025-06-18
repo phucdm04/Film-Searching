@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 from database_connector.qdrant_connector import connect_to_qdrant, search_points
 from preprocessing.preprocessing import WordEmbeddingPipeline, LSASVDPipeline
 from embedding.FastText import FastTextLSAEmbedder, FastText, TruncatedSVD
-
+from embedding.word2Vec import find_similar_films
+from embedding.glove import GloVe
 
 
 
@@ -82,35 +83,32 @@ def search_query(query_text, model_name):
         
     elif model_name == "glove":
         pipeline = WordEmbeddingPipeline()
-        processed_query = pipeline.preprocess_single_text(query_text)  
-        embedded_query = embed_with_glove(processed_query, embedder)
-        results = search_points(client, model_name, embedded_query)
+        processed_query = pipeline.preprocess_single_text(query_text)  # list of tokens
+        glove = GloVe.from_pretrained('./trained_models/glove.pkl')
+        embedded_query = glove.encode(processed_query)  # vectorized query
+        collection_name = "glove"
+        results = search_points(client, collection_name, embedded_query)
 
     elif model_name == "fasttext":
         pipeline = WordEmbeddingPipeline()
-        processed_query = pipeline.preprocess_single_text(query_text)
-        embedded_query = embedder.transform([processed_query])[0] # add [0] to make sure shape is (n, )
+        processed_query = pipeline.preprocess_single_text(query_text)  # -> list các từ
+        embedded_query = embedder.transform([" ".join(processed_query)])[0]  # sửa ở đây
         collection_name = "fastText"
-        results = search_points(client, collection_name, embedded_query)
-        # raise ValueError(f"Model chưa được hỗ trợ.")
-    
+        results = search_points(client, collection_name, embedded_query)    
     elif model_name == "word2vec":
-        pipeline = WordEmbeddingPipeline()
-        processed_query = pipeline.preprocess_single_text(query_text)  # list of tokens
-        embedded_query = embed_with_word2vec(processed_query, embedder)
-        collection_name = "word2Vec"
-        results = search_points(client, collection_name, embedded_query)
+        results = find_similar_films(query_text, model_path='./trained_models/word2vec.pkl')
     else:
         raise ValueError(f"Model chưa được hỗ trợ.")
 
     return results
 def main():
     query = "A Billionaire discovers his true destiny after stumbling upon a haunted castle and fights to protect the castle's legacy."
-    model_name = "fasttext"
+    model_name = "word2vec"
     
     results = search_query(query, model_name)
 
     print("Kết quả tìm kiếm:")
+    # print(results)
     for i, hit in enumerate(results, 1):
         film_name = hit.payload.get('metadata', {}).get('film_name', 'N/A')
         score = hit.score

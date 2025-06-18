@@ -55,7 +55,6 @@ function searchMovie() {
 
 function displayMovies(movieList, model) {
   const resultsDiv = document.getElementById("results");
-  // resultsDiv.innerHTML =  ``;
   resultsDiv.innerHTML =  `<p><strong>Kết quả tìm kiếm với model:</strong> ${model}</p> <br>`;
 
   if (!movieList || movieList.length === 0) {

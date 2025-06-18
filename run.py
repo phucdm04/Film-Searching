@@ -4,7 +4,6 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from search_engine.search_logic import search_query
-from embedding.ppmi import PPMIEmbedder, TruncatedSVD 
 
 
 load_dotenv()

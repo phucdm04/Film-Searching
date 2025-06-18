@@ -1,24 +1,31 @@
-# --- Phase 1: Train Word2Vec and Save Embeddings ---
+# word2vec_pipeline.py
 import numpy as np
 import pickle
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+import matplotlib.pyplot as plt
 import os
-
+import random
 load_dotenv()
+from qdrant_client import QdrantClient
+from database_connector.qdrant_connector import connect_to_qdrant, search_points
+
 
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
+# ---  Load sentences from MongoDB ---
 def get_sentences():
     client = MongoClient(MONGO_URI)
     collection = client[DB_NAME][COLLECTION_NAME]
     data_list = list(collection.find({}, {"cleaned_description": 1}))
     return [doc['cleaned_description'] for doc in data_list if 'cleaned_description' in doc]
 
-
-def train_word2vec(sentences, embedding_dim=100, window_size=2, learning_rate=0.01, epochs=1):
+# --- Train Word2Vec and save model ---
+def train_word2vec(sentences, embedding_dim=500, window_size=2, learning_rate=0.01, epochs=1, save_path='word2vec_embedding.pkl'):
     vocab = set(word for sent in sentences for word in sent)
     word2idx = {w: i for i, w in enumerate(vocab)}
     idx2word = {i: w for w, i in word2idx.items()}
@@ -44,53 +51,102 @@ def train_word2vec(sentences, embedding_dim=100, window_size=2, learning_rate=0.
                     W[target_idx] -= learning_rate * error
                     W[context_idx] += learning_rate * error
 
-    with open('word2vec_embedding.pkl', 'wb') as f:
+    with open(save_path, 'wb') as f:
         pickle.dump({'embedding': W, 'word2idx': word2idx, 'idx2word': idx2word}, f)
 
-
-# --- Phase 2: Use Embedding for Similarity Matching ---
-def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-10)
-
-
+# --- Vector helpers ---
 def get_vector(tokens, embedding_matrix, word2idx):
     vectors = [embedding_matrix[word2idx[t]] for t in tokens if t in word2idx]
     return np.mean(vectors, axis=0) if vectors else np.zeros(embedding_matrix.shape[1])
 
+def cosine_similarity(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-10)
 
-def find_similar_films(new_description, top_k=5):
-    client = MongoClient(MONGO_URI)
-    collection = client[DB_NAME][COLLECTION_NAME]
 
-    with open('word2vec.pkl', 'rb') as f:
+# def find_similar_films(new_description, top_k=10, model_path='word2vec_embedding.pkl'):
+#     client = MongoClient(MONGO_URI)
+#     collection = client[DB_NAME][COLLECTION_NAME]
+
+#     with open(model_path, 'rb') as f:
+#         model_data = pickle.load(f)
+    
+#     embedding_matrix = model_data['embedding']
+#     word2idx = model_data['word2idx']
+
+#     tokens = new_description.lower().split()
+#     new_vector = get_vector(tokens, embedding_matrix, word2idx)
+
+#     similarities = []
+#     for doc in collection.find({}, {"id": 1, "cleaned_description": 1}):
+#         vec = get_vector(doc['cleaned_description'], embedding_matrix, word2idx)
+#         sim = cosine_similarity(new_vector, vec)
+#         similarities.append((doc['id'], sim))
+
+#     top_matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_k]
+
+#     results = []
+#     for _id, score in top_matches:
+#         film = collection.find_one({'id': _id})
+#         if film:
+#             result = {
+#                 "film_name": film.get('metadata', {}).get('film_name', 'Unknown'),
+#                 "original_description": film.get('original_description', ''),
+#                 "similarity": round(score, 4)
+#             }
+#             results.append(result)
+    
+#     return results
+
+QDRANT_URL = os.getenv("QDRANT_URI") 
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")  
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "films")
+
+# Hàm lấy vector từ mô tả
+def get_vector(tokens, embedding_matrix, word2idx):
+    vectors = [embedding_matrix[word2idx[t]] for t in tokens if t in word2idx]
+    return np.mean(vectors, axis=0) if vectors else np.zeros(embedding_matrix.shape[1])
+
+# Hàm chính tìm phim tương tự từ Qdrant
+def find_similar_films(new_description, top_k=10, model_path='word2vec_embedding.pkl'):
+    # Tải model embedding
+    with open(model_path, 'rb') as f:
         model_data = pickle.load(f)
     embedding_matrix = model_data['embedding']
     word2idx = model_data['word2idx']
 
+    # Tiền xử lý và tính embedding
     tokens = new_description.lower().split()
-    new_vector = get_vector(tokens, embedding_matrix, word2idx)
+    query_vector = get_vector(tokens, embedding_matrix, word2idx).tolist()
 
-    similarities = []
-    for doc in collection.find({}, {"id": 1, "cleaned_description": 1}):
-        vec = get_vector(doc['cleaned_description'], embedding_matrix, word2idx)
-        sim = cosine_similarity(new_vector, vec)
-        similarities.append((doc['id'], sim))
+    # Kết nối Qdrant
+    url = os.getenv("QDRANT_URL")
+    key = os.getenv("QDRANT_KEY")
+    client = connect_to_qdrant(url, key)
 
-    top_matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_k]
+    # Truy vấn Qdrant
+    hits = client.search(
+        collection_name="word2Vec",
+        query_vector=query_vector,
+        limit=top_k
+    )
 
-    for _id, score in top_matches:
-        film = collection.find_one({'id': _id})
-        print(f"\n🎬 Film: {film['metadata']['film_name']}")
-        print(f"📝 Description: {film['original_description']}")
-        print(f"📊 Similarity: {score:.4f}")
+    return hits
+# ---  Evaluation with Silhouette Score ---
+def choose_k(n_samples):
+    return max(2, int(np.sqrt(n_samples)))
 
-
-# --- Run full pipeline ---
 if __name__ == '__main__':
-    # Training
+    #  Load cleaned descriptions
     sentences = get_sentences()
-    train_word2vec(sentences)
+    train_word2vec(sentences, embedding_dim=500, window_size=2, learning_rate=0.01, epochs=5, save_path='word2vec.pkl')
+    #  Test similarity search
+    print("\n Testing Similarity Search")
+    query = "Thomas Brainerd, Sr., as a prospector, is a dutiful and loving husband and father. Two children, Gertrude and Thomas, Jr., are born while the Brainerds live in a log cabin in the mountains"
+    find_similar_films(query, model_path='word2vec.pkl')  
 
-    # Similarity Matching
-    query = "A mother fakes her death and returns in disguise to see her children."
-    find_similar_films(query)
+
+  
+   
+
+    
+   
