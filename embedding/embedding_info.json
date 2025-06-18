@@ -39,7 +39,7 @@
             "MAP": 0.6985,
             "nDCG@10": 0.7229,
             "Retrieve time": 0.2463
-        },
+        }},
         {
             "model_name": "ppmi.pkl",
             "qdrant_collection_name": "ppmi",
@@ -52,7 +52,7 @@
                 "MAP": 0.3965,
                 "nDCG@10": 0.4088,
                 "Retrieve time": 0.2337
-            },
+            }},
         {
             "model_name": "fastText_model.pkl",
             "qdrant_collection_name": "fastText",
