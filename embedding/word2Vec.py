@@ -63,8 +63,10 @@ def cosine_similarity(a, b):
 def find_similar_films(new_description, top_k=5, model_path='word2vec_embedding.pkl'):
     client = MongoClient(MONGO_URI)
     collection = client[DB_NAME][COLLECTION_NAME]
+
     with open(model_path, 'rb') as f:
         model_data = pickle.load(f)
+    
     embedding_matrix = model_data['embedding']
     word2idx = model_data['word2idx']
 
@@ -79,11 +81,18 @@ def find_similar_films(new_description, top_k=5, model_path='word2vec_embedding.
 
     top_matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_k]
 
+    results = []
     for _id, score in top_matches:
         film = collection.find_one({'id': _id})
-        print(f"\n Film: {film['metadata']['film_name']}")
-        print(f" Description: {film['original_description']}")
-        print(f" Similarity: {score:.4f}")
+        if film:
+            result = {
+                "film_name": film.get('metadata', {}).get('film_name', 'Unknown'),
+                "original_description": film.get('original_description', ''),
+                "similarity": round(score, 4)
+            }
+            results.append(result)
+    
+    return results
 
 # ---  Evaluation with Silhouette Score ---
 def choose_k(n_samples):
