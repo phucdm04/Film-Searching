@@ -37,7 +37,6 @@ def process_and_upsert(docs, model, qdrant_client, qdrant_collection_name, overw
             "vector":vectors[i],
         }
 
-
         insert_point_to_qdrant(qdrant_client, qdrant_collection_name, qdrant_point)
         
 
