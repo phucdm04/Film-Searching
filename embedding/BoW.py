@@ -281,7 +281,7 @@ class SVDModel:
         """Fit SVD to input matrix X"""
         X = np.asarray(X, dtype=np.float64)
         self.mean_vec = np.mean(X, axis=0)
-        X_centered = X - self.mean_vec
+        X_centered = X
 
         self.U, self.s, self.Vt = self._svd_from_scratch(X_centered)
 
@@ -301,13 +301,13 @@ class SVDModel:
         if not self.is_fitted:
             raise ValueError("SVD must be fitted before transform.")
         X = np.asarray(X, dtype=np.float64)
-        X_centered = X - self.mean_vec
+        X_centered = X
         return X_centered @ self.Vt.T
 
     def fit_transform(self, X):
         """Fit and transform input data in one call"""
         self.fit(X)
-        return self.U * self.s
+        return self.transform(X)
 
     def inverse_transform(self, X_transformed):
         """Reconstruct data from reduced dimension"""
