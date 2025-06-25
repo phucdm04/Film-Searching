@@ -4,7 +4,8 @@ import logging
 import time
 from dotenv import load_dotenv
 
-from database_connector.qdrant_connector import connect_to_qdrant, insert_points_batch_to_qdrant_for_ppmi
+
+from database_connector.qdrant_connector import connect_to_qdrant, insert_points_batch_to_qdrant
 from database_connector.mongodb_connector import connect_to_mongodb, get_all_documents, get_collection, get_database
 from utils_ppmi import prepare_corpus, create_qdrant_points, get_model_config
 from embedding.ppmi import train_ppmi, PPMIEmbedder
@@ -32,7 +33,7 @@ SAVED_MODEL_PATH = "./embedding/trained_models/ppmi.pkl"
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "ppmi_model_config.json")
 
 
-def pipeline(mongo_src_collection, qdrant_client, model: PPMIEmbedder, batch_size=256):
+def pipeline(mongo_src_collection, qdrant_client, model: PPMIEmbedder):
     start_time = time.time()
 
     # Get documents
@@ -57,11 +58,10 @@ def pipeline(mongo_src_collection, qdrant_client, model: PPMIEmbedder, batch_siz
     # Insert to Qdrant
     logger.info(f"[pipeline] Inserting points into Qdrant collection: {QDRANT_PPMI_COLLECTION}")
     try:
-        insert_points_batch_to_qdrant_for_ppmi(
+        insert_points_batch_to_qdrant(
             qdrant_client=qdrant_client,
             collection_name=QDRANT_PPMI_COLLECTION,
-            qdrant_points=qdrant_points,
-            batch_size=batch_size
+            qdrant_points=qdrant_points
         )
         status = True
     except Exception as e:
