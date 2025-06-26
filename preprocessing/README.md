@@ -1,5 +1,6 @@
-# Preprocessing
-## Cấu trúc folder
+Preprocessing
+=
+#Cấu trúc folder
 
 ```
 preprocessing
@@ -8,7 +9,7 @@ preprocessing
 |--- preprocessing.py           # File config các Class cho việc preprocessing data
 |--- README.md               
 ```
-## Hướng dẫn
+# Hướng dẫn
 Để thực hiện việc tiền xử lý dữ liệu, chạy hàm main bằng lệnh:
 ```
 python main.py

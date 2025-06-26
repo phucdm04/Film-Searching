@@ -32,6 +32,3 @@ Các methods chính:
 - `find_best_n_components`: tìm giá trị thành phần chính giữ lại $i$% thông tin so với tài liệu gốc (mặc định là 95%)
 
 
-# Reference
-https://aclanthology.org/E14-1051.pdf
-https://arxiv.org/pdf/2405.07767

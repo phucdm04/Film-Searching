@@ -1,7 +1,6 @@
-# Film-Searching
-
-
-## 📥 Data Retrieval Script
+Film-Searching
+=
+# 📥 Data Retrieval Script
 
 To keep our credentials secure, we use a `.env` file to store the MongoDB connection URI.
 ```env

@@ -1,7 +1,6 @@
-# Database connector
-
-
-## Cấu trúc folder
+Database connector
+=
+# Cấu trúc folder
 
 ```
 preprocessing
@@ -10,7 +9,7 @@ preprocessing
 |--- qdrant_connector.py		# File chứa các phương thức để kết nối và điều chỉnh với Qdrant
 |--- README.md             
 ```
-## Hướng dẫn
+# Hướng dẫn
 Cần chuẩn bị các API và các biến môi trường cần thiết chứa trong `.env` ở đường dẫn gốc. File `.env` có dạng như sau:
 ```
 # MongoDB config
