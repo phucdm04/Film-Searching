@@ -46,13 +46,27 @@
         "qdrant_collection_name": "ppmi",
         "qdrant_vector_size": 1805,
         "metric": {
-            "Precision@10": 0.0451,
-            "Recall@10": 0.4491,
-            "F1@10": 0.0820,
-            "MRR": 0.3965,
-            "MAP": 0.3965,
-            "nDCG@10": 0.4088,
-            "Retrieve time": 0.2337
+            "Precision@10": 0.0505,
+            "Recall@10": 0.5031,
+            "F1@10": 0.0918,
+            "MRR": 0.4413,
+            "MAP": 0.4413,
+            "nDCG@10": 0.4561,
+            "Retrieve time": 0.2124
+        }
+    },
+    {
+        "model_name": "fastText_model.pkl",
+        "qdrant_collection_name": "fastText",
+        "qdrant_vector_size": 400,
+        "metric": {
+            "Precision@10": 0.0197,
+            "Recall@10": 0.1964,
+            "F1@10": 0.0359,
+            "MRR": 0.1536,
+            "MAP": 0.1536,
+            "nDCG@10": 0.1638,
+            "Retrieve time": 0.1430
         }
     },
     {

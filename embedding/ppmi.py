@@ -20,10 +20,8 @@ def l2_normalize(matrix: np.ndarray, eps=1e-8) -> np.ndarray:
     return matrix / norms
 
 
-
 class TruncatedSVD:
     def __init__(self, n_components: Optional[int] = None) -> None:
-
         self.n_components = n_components
         self.components_ = None
         self.singular_values_ = None
@@ -50,15 +48,12 @@ class TruncatedSVD:
         return X @ self.components_.T
 
     def fit_transform(self, X: sparse.csr_matrix) -> np.ndarray:
-
         self.fit(X)
         return self.transform(X)
 
     def choose_n_components(self, threshold: float = 0.95) -> int:
         if not self.fitted:
-
             raise RuntimeError("Model not fitted.")
-        
         cum_var = np.cumsum(self.explained_variance_ratio_)
         n_comp = int(np.searchsorted(cum_var, threshold) + 1)
         self.n_components = n_comp
@@ -81,7 +76,6 @@ class PPMIEmbedder:
         self.svd = TruncatedSVD(n_components)
         self.embeddings = None
         self.ppmi_sparse = None
-
 
     def _tokenize(self, doc: Union[str, List[str]]) -> List[str]:
         return doc.split() if isinstance(doc, str) else doc
@@ -119,10 +113,8 @@ class PPMIEmbedder:
                 for j in range(start, end):
                     if i != j:
                         context = token_ids[j]
-                        dist = abs(j - i)
-                        weight = 1.0 / (dist ** 0.75)
+                        weight = 1.0
                         cooc[(center, context)] += weight
-                        cooc[(context, center)] += weight
         return cooc
 
     def _merge_cooc(self, cooc_list):
@@ -150,20 +142,20 @@ class PPMIEmbedder:
         p_ij = coo.data / total_sum
         p_i = row_sums[coo.row] / total_sum
         p_j = col_sums[coo.col] / total_sum
-        pmi = np.log((p_ij + eps) / (p_i * p_j + eps))
+        pmi = np.log2((p_ij + eps) / (p_i * p_j + eps))
 
-        sppmi = np.maximum(0, pmi) #ppmi chuan
-        mask = sppmi > 0
+        ppmi = np.maximum(0, pmi)
+        mask = ppmi > 0
         return sparse.coo_matrix(
-            (sppmi[mask], (coo.row[mask], coo.col[mask])),
+            (ppmi[mask], (coo.row[mask], coo.col[mask])),
             shape=cooc_matrix.shape
         ).tocsr()
 
     def fit(self, docs: List[str]):
         self._build_vocab(docs)
         logging.info(f"Vocab size: {len(self.vocab)}")
-        cooc_sparse = self._build_cooc_sparse_parallel(docs)
-        self.ppmi_sparse = self._calculate_ppmi(cooc_sparse)
+        self.cooc_matrix = self._build_cooc_sparse_parallel(docs)
+        self.ppmi_sparse = self._calculate_ppmi(self.cooc_matrix)
         self.embeddings = l2_normalize(self.svd.fit_transform(self.ppmi_sparse))
 
     def transform_docs(self, docs: List[str]) -> np.ndarray:
@@ -194,7 +186,7 @@ class PPMIEmbedder:
 
 def train_ppmi(
     docs: List[str],
-    max_features: int = 5000,
+    max_features: int = 2000,
     window_size: int = 6,
     min_count: int = 2,
     n_components: int = 300,
