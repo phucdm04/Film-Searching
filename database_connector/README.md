@@ -1,32 +1,26 @@
-# Preprocessing
+# Database connector
 
 
 ## Cấu trúc folder
 
 ```
 preprocessing
-|
-|--- main.py                    # File main dùng để run toàn bộ progress
-|--- mongodb_connector.py       # File config các method liên quan đến mongodb: connect, get documents, get data,...
-|--- data_models.py             # File config và validate các trường dữ liệu của data. Nhằm đồng bộ, chuẩn hóa các trường dữ liệu
-|--- preprocessing.py           # File config các Class cho việc preprocessing data
-|--- notebook_experiments.py    # File chạy thử nghiệm và test các chức năng
-|--- .env                       # File dùng để chứa các biến môi trường
-|--- requirements.txt           # File chứa các thư viện cần thiết để chạy code   
-|--- readme.md               
+|--- __init.py__
+|--- mongodb_connector.py       # File chứa các phương thức để kết nối tới MongoDB để lấy dữ liệu
+|--- qdrant_connector.py		# File chứa các phương thức để kết nối và điều chỉnh với Qdrant
+|--- README.md             
 ```
 ## Hướng dẫn
-
-- Chạy lệnh dưới đây để tải các thư viện cần thiết.
+Cần chuẩn bị các API và các biến môi trường cần thiết chứa trong `.env` ở đường dẫn gốc. File `.env` có dạng như sau:
 ```
-pip install -r requirements.txt
-```
+# MongoDB config
+MONGO_URI=
+DATABASE_NAME=Film
+COLLECTION_NAME=Data
+LSA_COLLECTION_NAME=lsa_svd_preprocessed
+WEMB_COLLECTION_NAME=word_embedding_preprocessed
 
-- Đưa các biến môi trường vào file .env theo hướng dẫn. Có thể tự tùy chỉnh tên collection nếu muốn.
-
-- Chạy hàm main bằng lệnh:
+# Qdrant config
+QDRANT_URL=
+QDRANT_KEY=
 ```
-python main.py
-```
-
-- Sau đó truy cập vào MongoDB Compass (local) hoặc MongoDB Atlas (cloud) để xem kết quả. Lưu ý, phải truy cập đúng database tương ứng với uri ban đầu.
