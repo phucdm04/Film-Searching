@@ -61,7 +61,7 @@ def search_query(query_text, model_name):
     if model_name == "tfidf":
         pipeline = LSASVDPipeline()
         processed_query = pipeline.preprocess(query_text)
-        embedded_query = embedder.transform_docs([processed_query])[0] # add [0] to make sure shape is (n, )
+        embedded_query = embedder.transform_doc([processed_query])[0] # add [0] to make sure shape is (n, )
         results = search_points(client, model_name, embedded_query)
 
     elif model_name == "ppmi":
@@ -103,7 +103,7 @@ def search_query(query_text, model_name):
     return results
 def main():
     query = "A Billionaire discovers his true destiny after stumbling upon a haunted castle and fights to protect the castle's legacy."
-    model_name = "word2vec"
+    model_name = "bow"
     
     results = search_query(query, model_name)
 

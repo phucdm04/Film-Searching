@@ -9,9 +9,6 @@ import matplotlib.pyplot as plt
 import os
 import random
 load_dotenv()
-from qdrant_client import QdrantClient
-from database_connector.qdrant_connector import connect_to_qdrant, search_points
-
 
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
@@ -62,75 +59,34 @@ def get_vector(tokens, embedding_matrix, word2idx):
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-10)
 
-
-# def find_similar_films(new_description, top_k=10, model_path='word2vec_embedding.pkl'):
-#     client = MongoClient(MONGO_URI)
-#     collection = client[DB_NAME][COLLECTION_NAME]
-
-#     with open(model_path, 'rb') as f:
-#         model_data = pickle.load(f)
-    
-#     embedding_matrix = model_data['embedding']
-#     word2idx = model_data['word2idx']
-
-#     tokens = new_description.lower().split()
-#     new_vector = get_vector(tokens, embedding_matrix, word2idx)
-
-#     similarities = []
-#     for doc in collection.find({}, {"id": 1, "cleaned_description": 1}):
-#         vec = get_vector(doc['cleaned_description'], embedding_matrix, word2idx)
-#         sim = cosine_similarity(new_vector, vec)
-#         similarities.append((doc['id'], sim))
-
-#     top_matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_k]
-
-#     results = []
-#     for _id, score in top_matches:
-#         film = collection.find_one({'id': _id})
-#         if film:
-#             result = {
-#                 "film_name": film.get('metadata', {}).get('film_name', 'Unknown'),
-#                 "original_description": film.get('original_description', ''),
-#                 "similarity": round(score, 4)
-#             }
-#             results.append(result)
-    
-#     return results
-
-QDRANT_URL = os.getenv("QDRANT_URI") 
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")  
-QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "films")
-
-# Hàm lấy vector từ mô tả
-def get_vector(tokens, embedding_matrix, word2idx):
-    vectors = [embedding_matrix[word2idx[t]] for t in tokens if t in word2idx]
-    return np.mean(vectors, axis=0) if vectors else np.zeros(embedding_matrix.shape[1])
-
-# Hàm chính tìm phim tương tự từ Qdrant
-def find_similar_films(new_description, top_k=10, model_path='word2vec_embedding.pkl'):
-    # Tải model embedding
+# ---  Similarity matching ---
+def find_similar_films(new_description, top_k=5, model_path='word2vec_embedding.pkl'):
+    client = MongoClient(MONGO_URI)
+    collection = client[DB_NAME][COLLECTION_NAME]
     with open(model_path, 'rb') as f:
         model_data = pickle.load(f)
+    
     embedding_matrix = model_data['embedding']
     word2idx = model_data['word2idx']
 
-    # Tiền xử lý và tính embedding
     tokens = new_description.lower().split()
-    query_vector = get_vector(tokens, embedding_matrix, word2idx).tolist()
+    new_vector = get_vector(tokens, embedding_matrix, word2idx)
 
-    # Kết nối Qdrant
-    url = os.getenv("QDRANT_URL")
-    key = os.getenv("QDRANT_KEY")
-    client = connect_to_qdrant(url, key)
+    similarities = []
+    for doc in collection.find({}, {"id": 1, "cleaned_description": 1}):
+        vec = get_vector(doc['cleaned_description'], embedding_matrix, word2idx)
+        sim = cosine_similarity(new_vector, vec)
+        similarities.append((doc['id'], sim))
 
-    # Truy vấn Qdrant
-    hits = client.search(
-        collection_name="word2Vec",
-        query_vector=query_vector,
-        limit=top_k
-    )
+    top_matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_k]
 
-    return hits
+    results = []
+    for _id, score in top_matches:
+        film = collection.find_one({'id': _id})
+        print(f"\n Film: {film['metadata']['film_name']}")
+        print(f" Description: {film['original_description']}")
+        print(f" Similarity: {score:.4f}")
+
 # ---  Evaluation with Silhouette Score ---
 def choose_k(n_samples):
     return max(2, int(np.sqrt(n_samples)))
@@ -143,10 +99,3 @@ if __name__ == '__main__':
     print("\n Testing Similarity Search")
     query = "Thomas Brainerd, Sr., as a prospector, is a dutiful and loving husband and father. Two children, Gertrude and Thomas, Jr., are born while the Brainerds live in a log cabin in the mountains"
     find_similar_films(query, model_path='word2vec.pkl')  
-
-
-  
-   
-
-    
-   
