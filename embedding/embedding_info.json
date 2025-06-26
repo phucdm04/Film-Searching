@@ -68,19 +68,5 @@
             "nDCG@10": 0.1638,
             "Retrieve time": 0.1430
         }
-    },
-    {
-        "model_name": "fastText_model.pkl",
-        "qdrant_collection_name": "fastText",
-        "qdrant_vector_size": 400,
-        "metric": {
-            "Precision@10": 0.0197,
-            "Recall@10": 0.1964,
-            "F1@10": 0.0359,
-            "MRR": 0.1536,
-            "MAP": 0.1536,
-            "nDCG@10": 0.1638,
-            "Retrieve time": 0.1430
-        }
     }
 ]
