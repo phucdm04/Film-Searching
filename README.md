@@ -51,7 +51,7 @@ pip install -r requirements.txt
 ```python
 python run.py
 ```
-Sau khi chạy thành công, sẽ thấy dòng như sau:
+Sau khi chạy thành công, bạn sẽ thấy dòng như sau:
 ```
 Successfully connected to Qdrant!
  * Ngrok public URL: NgrokTunnel: "https://***.ngrok-free.app" -> "http://localhost:5000"
@@ -73,10 +73,9 @@ lsa_movie_web/
 │   └── Image/
 ├── database_connector/            # Kết nối đến cơ sở dữ liệu (MongoDB, v.v.)
 ├── embedding/                     # Thư mục xử lý embedding & mô hình
-│   ├── trained_models/            # Mô hình PCA, LSA (sử dụng LFS)
 │   └── bow_svd_model/             # Mô hình biểu diễn BoW + SVD
 ├── preprocessing/                 # Xử lý dữ liệu trước khi phân tích
 ├── search_engine/                 # Logic xử lý truy vấn tìm kiếm
-├── .env/                          # lưu trữ các biến môi trường xem ví dụ trong .env.example
-├── trained_models/                # (tạm thời, có thể gộp vào embedding/)
+├── .env/                          # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
+├── trained_models/                # Các model .pkl
 ```
