@@ -4,7 +4,10 @@ from collections import defaultdict
 from pymongo import MongoClient
 from collections import Counter, defaultdict
 import pickle
+from dotenv import load_dotenv
+import argparse
 
+load_dotenv()
 
 def get_sentences():
     client = MongoClient(os.getenv('MONGO_URI'))
@@ -141,6 +144,14 @@ def build_cooccur_matrix(sentences, word2id, window_size=5):
     return cooccur_data
 
 if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(description="Train GloVe embeddings")
+    argparser.add_argument("--embedding_dim", type=int, default=512, help="Dimension of the embeddings")
+    argparser.add_argument("--epochs", type=int, default=150, help="Number of training epochs")
+    argparser.add_argument("--learning_rate", type=float, default=0.05, help="Learning rate for training")
+    argparser.add_argument("--window_size", type=int, default=5, help="Window size for co-occurrence")
+    argparser.add_argument("--save_path", type=str, default="./embedding/trained_models/glove_512.pkl", help="Path to save the trained embeddings")
+    args = argparser.parse_args()
+
     sentences = get_sentences()
 
     print("Building vocabulary...")
@@ -152,12 +163,12 @@ if __name__ == "__main__":
     print(f"Co-occurrence pairs: {len(cooccur_data)}")
 
     print("Training GloVe model...")
-    model = GloVe(vocab_size=len(word2id), embedding_dim=50, epochs=100)
+    model = GloVe(vocab_size=len(word2id), embedding_dim=args.embedding_dim, epochs=args.epochs, learning_rate=args.learning_rate)
     model.fit(cooccur_data)
 
     embeddings = model.get_embeddings()
-    print("Saving embeddings to glove_embeddings.pkl...")
-    with open("./embedding/trained_models/glove.pkl", "wb") as f:
+    print(f"Saving embeddings to {args.save_path}...")
+    with open(args.save_path, "wb") as f:
         pickle.dump({
             "embeddings": embeddings,
             "word2id": word2id,
