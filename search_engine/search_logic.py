@@ -103,7 +103,7 @@ def search_query(query_text, model_name):
     return results
 def main():
     query = "A Billionaire discovers his true destiny after stumbling upon a haunted castle and fights to protect the castle's legacy."
-    model_name = "bow"
+    model_name = "word2vec"
     
     results = search_query(query, model_name)
 
