@@ -3,6 +3,7 @@
 
 ```
 preprocessing
+|--- main.py                    # File main dùng để run toàn bộ progress
 |--- data_models.py             # File config và validate các trường dữ liệu của data. Nhằm đồng bộ, chuẩn hóa các trường dữ liệu
 |--- preprocessing.py           # File config các Class cho việc preprocessing data
 |--- README.md               
