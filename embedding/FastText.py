@@ -1,10 +1,10 @@
 import numpy as np
+from typing import List, Optional
+from collections import Counter
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 import time
 import pickle
-from collections import Counter
-from typing import List, Optional
-from tqdm import tqdm
 
 # FastTextLSAEmbedder Model
 class TruncatedSVD:
@@ -225,7 +225,7 @@ class FastTextLSAEmbedder:
         X = np.array([self._embed_doc(doc) for doc in tokenized])
         if X.shape[0] == 0 or np.all(X == 0):
             raise ValueError("Document embeddings are all zeros, cannot fit SVD.")
-
+        
         training_time = time.time() - start_time
         if self.use_lsa:
             print("Fitting SVD...")
