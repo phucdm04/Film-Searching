@@ -184,6 +184,7 @@ body {
   } 
   .movie-info td{
     font-size: 15px;
+    text-align: justify;
   }
 
   .movie-card .left-image {
@@ -235,6 +236,7 @@ body {
   padding: 30px 40px;
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(255, 153, 0, 0.2);
+  text-align: justify;
 }
 
 .about-container h1 {
