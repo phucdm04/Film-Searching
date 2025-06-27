@@ -69,4 +69,18 @@
             "Retrieve time": 0.1430
         }
     },
+    {
+        "model_name": "word2Vec.pkl",
+        "qdrant_collection_name": "word2Vec",
+        "qdrant_vector_size": 500,
+        "metrics" = {
+            "Precision@10": 0.0483,
+            "Recall@10": 0.4818,
+            "F1@10": 0.0877,
+            "MRR": 0.4455,
+            "MAP": 0.4455,
+            "nDCG@10": 0.4547,
+            "Retrieve Time (s)": 0.2456
+        }
+    },
 ]
