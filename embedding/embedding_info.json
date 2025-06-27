@@ -73,7 +73,7 @@
         "model_name": "word2Vec.pkl",
         "qdrant_collection_name": "word2Vec",
         "qdrant_vector_size": 500,
-        "metrics" = {
+        "metrics" : {
             "Precision@10": 0.0483,
             "Recall@10": 0.4818,
             "F1@10": 0.0877,
