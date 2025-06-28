@@ -2,7 +2,7 @@
 
 ```
 preprocessing/
-|-- __init.py__
+|-- __init__.py
 |-- mongodb_connector.py       # File chứa các phương thức để kết nối tới MongoDB để lấy dữ liệu
 |-- qdrant_connector.py		    # File chứa các phương thức để kết nối và điều chỉnh với Qdrant
 |-- README.md             
