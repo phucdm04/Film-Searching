@@ -1,5 +1,3 @@
-Database connector
-=
 # 📃Cấu trúc folder
 
 ```
