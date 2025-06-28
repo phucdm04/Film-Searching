@@ -1,5 +1,5 @@
 # Film-Searching
-
+<!-- 
 
 ## 📥 Data Retrieval Script
 
@@ -31,7 +31,7 @@ db = client["Film"]
 collection = db["Data"]
 cursor = collection.find({}, {"_id": 0})
 df = pd.DataFrame(list(cursor))
-```
+``` -->
 
 # 🎬 LSA Movie Web
 
