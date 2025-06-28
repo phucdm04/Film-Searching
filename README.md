@@ -70,7 +70,7 @@ root/
 ```
 
 ## 📖Hướng dẫn
-### 1️⃣Tạo thư mục .env
+### 1️⃣Tạo file .env
 ```
 # MongoDB config
 MONGO_URI=
