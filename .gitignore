@@ -130,7 +130,7 @@ celerybeat.pid
 
 # Environments
 .env
-# film_search_env/
+film_search_env/
 
 .venv
 env/
