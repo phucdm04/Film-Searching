@@ -6,7 +6,6 @@ from tqdm import tqdm
 import time
 import pickle
 
-# FastTextLSAEmbedder Model
 class TruncatedSVD:
     def __init__(self, n_components: int):
         self.n_components = n_components
@@ -197,11 +196,7 @@ class FastTextLSAEmbedder:
     def _preprocess(self, doc: str) -> List[str]:
         if not doc.strip():
             return []
-        doc = contractions.fix(doc.lower())
-        tokens = word_tokenize(doc)
-        stop_words = set(stopwords.words('english')) - {'not', 'very', 'no'}
-        lemmatizer = WordNetLemmatizer()
-        return [lemmatizer.lemmatize(t) for t in tokens if t.isalpha() and t not in stop_words]
+        return doc.lower().split()
 
     def _embed_doc(self, tokens: List[str]) -> np.ndarray:
         vectors = np.array([self.model.get_vector(w) for w in tokens if w in self.model.word2idx])
@@ -313,19 +308,3 @@ class FastTextLSAEmbedder:
             model = pickle.load(f)
         print(f"Model loaded from {filename}")
         return model
-
-# Example usage
-if __name__ == "__main__":
-    docs = [
-        "cat eats fish",
-        "dog chases cat",
-        "fish swims in river",
-        "cat and dog play together"
-    ]
-    query = "cat chases mouse"
-
-    embedder = FastTextLSAEmbedder(n_components=2)
-    embedder.fit(docs, plot=True)
-    print("Doc vectors:", embedder.transform(docs))
-    print("Query vector:", embedder.transform([query]))
-
