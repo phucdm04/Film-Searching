@@ -54,22 +54,14 @@ root/
 ```
 
 # 📖Hướng dẫn
-
 ## 1️⃣Cài đặt các thư viện cần thiết
-
 Trước tiên, cài đặt các thư viện yêu cầu:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 2️⃣Chạy ứng dụng
-```python
-python run.py
-```
-Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
-
-## 3️⃣Tạo file .env
+## 2️⃣Tạo file .env
 ```
 # MongoDB config
 MONGO_URI=
@@ -82,3 +74,10 @@ WEMB_COLLECTION_NAME=word_embedding_preprocessed
 QDRANT_URL=
 QDRANT_KEY=
 ```
+
+## 2️3️⃣Chạy ứng dụng
+```python
+python run.py
+```
+Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
+
