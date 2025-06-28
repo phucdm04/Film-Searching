@@ -61,7 +61,7 @@ Trước tiên, cài đặt các thư viện yêu cầu:
 pip install -r requirements.txt
 ```
 
-## 2️⃣Tạo file .env
+## 2️⃣Tạo file `.env`
 ```
 # MongoDB config
 MONGO_URI=
