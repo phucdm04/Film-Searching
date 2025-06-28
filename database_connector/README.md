@@ -9,4 +9,6 @@ preprocessing
 ```
 
 # 💭Mô tả
-Folder chứa các phương thức để liên kết đến database. Có hai database: MongoDB để lưu trữ dữ liệu phim, Qdrant để lưu trữ vector số được nhúng từ văn bản.
+Folder chứa các phương thức để liên kết đến database. Có hai database: 
+- **MongoDB** để lưu trữ dữ liệu phim.
+- **Qdrant** để lưu trữ vector số được nhúng từ văn bản.
