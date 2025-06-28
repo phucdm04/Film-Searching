@@ -53,7 +53,7 @@ python run.py
 ```
 Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
 
-##. Cấu trúc thư mục chính
+## Cấu trúc thư mục chính
 ```
 root/
 ├── run.py                          # File chính để chạy ứng dụng Flask
