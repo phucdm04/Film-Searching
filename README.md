@@ -75,7 +75,7 @@ QDRANT_URL=
 QDRANT_KEY=
 ```
 
-## 2️3️⃣Chạy ứng dụng
+## 3️⃣Chạy ứng dụng
 ```python
 python run.py
 ```
