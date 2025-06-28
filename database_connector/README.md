@@ -8,7 +8,7 @@ preprocessing
 |--- README.md             
 ```
 # 📖Hướng dẫn
-Cần chuẩn bị các API và các biến môi trường cần thiết chứa trong `.env` ở đường dẫn gốc. File `.env` có dạng như sau:
+Cần chuẩn bị các API và các biến môi trường cần thiết chứa trong `.env` ở thư mục gốc. File `.env` có dạng như sau:
 ```
 # MongoDB config
 MONGO_URI=
