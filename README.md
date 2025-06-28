@@ -1,7 +1,7 @@
 # Film-Searching
 <!-- 
 
-## 📥 Data Retrieval Script
+## 📥Data Retrieval Script
 
 To keep our credentials secure, we use a `.env` file to store the MongoDB connection URI.
 ```env
@@ -33,13 +33,13 @@ cursor = collection.find({}, {"_id": 0})
 df = pd.DataFrame(list(cursor))
 ``` -->
 
-# 🎬 LSA Movie Web
+# 🎬LSA Movie Web
 
 Đây là một ứng dụng web sử dụng Latent Semantic Analysis (LSA) để tìm kiếm các bộ phim dựa trên nội dung mô tả.
 
-## 🚀 Cách chạy ứng dụng
+## 🚀Cách chạy ứng dụng
 
-### 1. Cài đặt các thư viện cần thiết
+### 1️⃣Cài đặt các thư viện cần thiết
 
 Trước tiên, cài đặt các thư viện yêu cầu:
 
@@ -47,13 +47,13 @@ Trước tiên, cài đặt các thư viện yêu cầu:
 pip install -r requirements.txt
 ```
 
-### 2. Chạy ứng dụng
+### 2️⃣Chạy ứng dụng
 ```python
 python run.py
 ```
 Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
 
-## Cấu trúc thư mục chính
+## 📃Cấu trúc thư mục gốc
 ```
 root/
 ├── run.py                          # File chính để chạy ứng dụng Flask
@@ -67,4 +67,19 @@ root/
 ├── search_engine/                 # Logic xử lý truy vấn tìm kiếm
 ├── trained_models/                # Các model .pkl
 ├── .env/                          # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
+```
+
+## 📖Hướng dẫn
+### 1️⃣Tạo thư mục .env
+```
+# MongoDB config
+MONGO_URI=
+DATABASE_NAME=Film
+COLLECTION_NAME=Data
+LSA_COLLECTION_NAME=lsa_svd_preprocessed
+WEMB_COLLECTION_NAME=word_embedding_preprocessed
+
+# Qdrant config
+QDRANT_URL=
+QDRANT_KEY=
 ```
