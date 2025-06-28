@@ -66,7 +66,7 @@ root/
 ├── preprocessing/                 # Tiền xử lý dữ liệu
 ├── search_engine/                 # Logic xử lý truy vấn tìm kiếm
 ├── trained_models/                # Các model .pkl
-├── .env/                          # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
+├── .env                          # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
 ```
 
 ## 📖Hướng dẫn
