@@ -51,31 +51,20 @@ pip install -r requirements.txt
 ```python
 python run.py
 ```
-Sau khi chạy thành công, bạn sẽ thấy dòng như sau:
-```
-Successfully connected to Qdrant!
- * Ngrok public URL: NgrokTunnel: "https://***.ngrok-free.app" -> "http://localhost:5000"
- * Serving Flask app 'run'
- * Debug mode: off
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:5000
-Press CTRL+C to quit
-```
-Mở trình duyệt và truy cập: http://127.0.0.1:5000 hoặc https://***.ngrok-free.app (có thể chia sẻ cho người khác)
+Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
 
-### 3. Cấu trúc thư mục chính
+##. Cấu trúc thư mục chính
 ```
-lsa_movie_web/
+root/
 ├── run.py                          # File chính để chạy ứng dụng Flask
 ├── requirements.txt               # Thư viện cần thiết
 ├── templates/                     # Giao diện HTML
 ├── static/                        # Tài nguyên tĩnh (ảnh, CSS, JS)
 │   └── Image/
 ├── database_connector/            # Kết nối đến cơ sở dữ liệu (MongoDB, v.v.)
-├── embedding/                     # Thư mục xử lý embedding & mô hình
-│   └── bow_svd_model/             # Mô hình biểu diễn BoW + SVD
-├── preprocessing/                 # Xử lý dữ liệu trước khi phân tích
+├── embedding/                     # Thư mục chứa file .py của các mô hình
+├── preprocessing/                 # Tiền xử lý dữ liệu
 ├── search_engine/                 # Logic xử lý truy vấn tìm kiếm
-├── .env/                          # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
 ├── trained_models/                # Các model .pkl
+├── .env/                          # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
 ```
