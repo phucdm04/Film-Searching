@@ -1,24 +1,23 @@
+
 Documents
 =
-# Cấu trúc folder
+# 💭Mô tả
+Folder chứa các thuật toán để biểu diễn văn bản dưới dạng ma trận.
+# 📃Cấu trúc folder
 ```
-embedding
+embedding/
 |-- __init__.py
 |-- README.md
-|-- vectordb_configs.json
-|-- HellingerPCAEmbedder.py
+|-- BoW.py
 |-- TfidfEmbedder.py
-|-- FastText.py
+|-- ppmi.py
+|-- HellingerPCAEmbedder.py
 |-- word2Vec.py
 |-- glove.py
-|-- bow_svd_model
-	|-- ...
-|-- trained_models
-	|-- tfidf.pkl 
-	|-- hellinger_pca.pkl
+|-- FastText.py
 ```
 
-## `HellingerPcaEmbedder.py`
+<!-- ## `HellingerPcaEmbedder.py`
 Các methods chính:
 - `fit`: cho Embedder học ma trận từ đồng xuất hiện
 - `transform_word`: nhúng một từ
@@ -29,9 +28,5 @@ Các methods chính:
 Các methods chính:
 - `fit`: cho Embedder học ma trận từ đồng xuất hiện
 - `transform_docs`: nhúng tài liệu
-- `find_best_n_components`: tìm giá trị thành phần chính giữ lại $i$% thông tin so với tài liệu gốc (mặc định là 95%)
+- `find_best_n_components`: tìm giá trị thành phần chính giữ lại $i$% thông tin so với tài liệu gốc (mặc định là 95%) -->
 
-
-# Reference
-https://aclanthology.org/E14-1051.pdf
-https://arxiv.org/pdf/2405.07767
