@@ -146,7 +146,6 @@ class HPEmbedder:
 
     def fit(self, docs: List[str]):
         cooc_matrix = self._build_cooccurrence_matrix(docs)
-        
         X_hel = self._hellinger_transform(cooc_matrix)
         self.embeddings = self.pca.fit_transform(X_hel)
 

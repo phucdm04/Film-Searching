@@ -21,6 +21,8 @@ class GloVe:
         self.alpha = alpha
         self.lr = learning_rate
         self.epochs = epochs
+        self.word2id = {}
+        self.id2word = {}
 
         # Embedding vectors and biases
         self.W = np.random.randn(vocab_size, embedding_dim) / np.sqrt(vocab_size)
@@ -81,6 +83,32 @@ class GloVe:
     def get_embeddings(self):
         # Trả về tổng embeddings của word và context word
         return self.W + self.W_context
+    
+    @staticmethod
+    def from_pretrained(pickle_path):
+        with open(pickle_path, "rb") as f:
+            data = pickle.load(f)
+
+        word2id = data["word2id"]
+        id2word = data["id2word"]
+        embeddings = data["embeddings"]
+        vocab_size = len(word2id)
+
+        model = GloVe(vocab_size=vocab_size, embedding_dim=embeddings.shape[1])
+        model.W = embeddings / 2  # assume W + W_context = embeddings
+        model.W_context = embeddings / 2
+        model.word2id = word2id
+        model.id2word = id2word
+        model.embeddings = embeddings
+        return model
+
+    def encode(self, text):
+        tokens = [w.lower() for w in text if isinstance(w, str)]
+        vectors = [self.embeddings[self.word2id[w]] for w in tokens if w in self.word2id]
+        if vectors:
+            return np.mean(vectors, axis=0)
+        else:
+            return np.zeros(self.embeddings.shape[1])
 
 
 def build_vocab(sentences, min_count=1):
@@ -112,7 +140,6 @@ def build_cooccur_matrix(sentences, word2id, window_size=5):
     cooccur_data = [(i, j, x_ij) for (i, j), x_ij in cooccur.items()]
     return cooccur_data
 
-
 if __name__ == "__main__":
     sentences = get_sentences()
 
@@ -125,7 +152,7 @@ if __name__ == "__main__":
     print(f"Co-occurrence pairs: {len(cooccur_data)}")
 
     print("Training GloVe model...")
-    model = GloVe(vocab_size=len(word2id), embedding_dim=50, epochs=50)
+    model = GloVe(vocab_size=len(word2id), embedding_dim=50, epochs=100)
     model.fit(cooccur_data)
 
     embeddings = model.get_embeddings()

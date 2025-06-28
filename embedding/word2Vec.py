@@ -8,16 +8,17 @@ from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 import os
 import random
+from database_connector.qdrant_connector import connect_to_qdrant
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = os.getenv("DB_NAME")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 # ---  Load sentences from MongoDB ---
 def get_sentences():
     client = MongoClient(MONGO_URI)
-    collection = client[DB_NAME][COLLECTION_NAME]
+    collection = client[DATABASE_NAME][COLLECTION_NAME]
     data_list = list(collection.find({}, {"cleaned_description": 1}))
     return [doc['cleaned_description'] for doc in data_list if 'cleaned_description' in doc]
 
@@ -60,32 +61,30 @@ def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-10)
 
 # ---  Similarity matching ---
-def find_similar_films(new_description, top_k=5, model_path='word2vec_embedding.pkl'):
-    client = MongoClient(MONGO_URI)
-    collection = client[DB_NAME][COLLECTION_NAME]
+def find_similar_films(new_description, top_k=10, model_path='word2vec_embedding.pkl'):
+    # Tải model embedding
     with open(model_path, 'rb') as f:
         model_data = pickle.load(f)
-    
     embedding_matrix = model_data['embedding']
     word2idx = model_data['word2idx']
 
+    # Tiền xử lý và tính embedding
     tokens = new_description.lower().split()
-    new_vector = get_vector(tokens, embedding_matrix, word2idx)
+    query_vector = get_vector(tokens, embedding_matrix, word2idx).tolist()
 
-    similarities = []
-    for doc in collection.find({}, {"id": 1, "cleaned_description": 1}):
-        vec = get_vector(doc['cleaned_description'], embedding_matrix, word2idx)
-        sim = cosine_similarity(new_vector, vec)
-        similarities.append((doc['id'], sim))
+    # Kết nối Qdrant
+    url = os.getenv("QDRANT_URL")
+    key = os.getenv("QDRANT_KEY")
+    client = connect_to_qdrant(url, key)
 
-    top_matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_k]
+    # Truy vấn Qdrant
+    hits = client.search(
+        collection_name="word2Vec",
+        query_vector=query_vector,
+        limit=top_k
+    )
 
-    results = []
-    for _id, score in top_matches:
-        film = collection.find_one({'id': _id})
-        print(f"\n Film: {film['metadata']['film_name']}")
-        print(f" Description: {film['original_description']}")
-        print(f" Similarity: {score:.4f}")
+    return hits
 
 # ---  Evaluation with Silhouette Score ---
 def choose_k(n_samples):
