@@ -1,4 +1,3 @@
-# Film-Searching
 <!-- 
 
 ## 📥Data Retrieval Script
@@ -33,27 +32,12 @@ cursor = collection.find({}, {"_id": 0})
 df = pd.DataFrame(list(cursor))
 ``` -->
 
-# 🎬LSA Movie Web
+🎬LSA Movie Web
+=
 
 Đây là một ứng dụng web sử dụng Latent Semantic Analysis (LSA) để tìm kiếm các bộ phim dựa trên nội dung mô tả.
 
-## 🚀Cách chạy ứng dụng
-
-### 1️⃣Cài đặt các thư viện cần thiết
-
-Trước tiên, cài đặt các thư viện yêu cầu:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2️⃣Chạy ứng dụng
-```python
-python run.py
-```
-Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
-
-## 📃Cấu trúc thư mục gốc
+# 📃Cấu trúc thư mục gốc
 ```
 root/
 ├── run.py                         # File chính để chạy ứng dụng Flask
@@ -69,8 +53,23 @@ root/
 
 ```
 
-## 📖Hướng dẫn
-### 1️⃣Tạo file .env
+# 📖Hướng dẫn
+
+## 1️⃣Cài đặt các thư viện cần thiết
+
+Trước tiên, cài đặt các thư viện yêu cầu:
+
+```bash
+pip install -r requirements.txt
+```
+
+## 2️⃣Chạy ứng dụng
+```python
+python run.py
+```
+Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
+
+## 3️⃣Tạo file .env
 ```
 # MongoDB config
 MONGO_URI=
