@@ -1,7 +1,4 @@
-Preprocessing
-=
-#Cấu trúc folder
-
+# 📃Cấu trúc folder
 ```
 preprocessing
 |--- main.py                    # File main dùng để run toàn bộ progress
@@ -9,6 +6,9 @@ preprocessing
 |--- preprocessing.py           # File config các Class cho việc preprocessing data
 |--- README.md               
 ```
+# 💭Mô tả
+Folder chứa các phương thức để tiền xử lý dữ liệu văn bản.
+
 # 📖Hướng dẫn
 Để thực hiện việc tiền xử lý dữ liệu, chạy hàm main bằng lệnh:
 ```
