@@ -62,7 +62,7 @@ Gồm các file: `BoW.py`, `Tfidf.py`, `ppmi.py`
 - `fit(X)`: Thực hiện phân rã SVD. Lưu trữ các thành phần chính (`components`), giá trị kỳ dị (`singular values`), và phương sai giải thích (`explained variance`).
 - `transform(X)`: Chiếu dữ liệu lên không gian thành phần chính đã học.
 - `choose_n_components(threshold)	`: Chọn số chiều tối ưu để giữ lại tỷ lệ phương sai mong muốn, mặc định là 95\%.
-- `plot\_cumulative\_variance()`: Vẽ đồ thị biểu diễn tỷ lệ phương sai tích lũy theo số chiều giữ lại.
+- `plot_cumulative_variance()`: Vẽ đồ thị biểu diễn tỷ lệ phương sai tích lũy theo số chiều giữ lại.
 
 **Lớp `TEmbedder`**: Lớp này xử lý đầu vào là các tài liệu văn bản và sinh ra biểu diễn vector rút gọn. Các phương thức bao gồm:
 - `__init__`: Người dùng có thể tùy chỉnh số chiều đầu ra (`n_components`), số từ tối đa (`max_features`), và lựa chọn chuẩn hóa (`norm`).
