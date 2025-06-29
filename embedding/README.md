@@ -42,7 +42,7 @@ Gồm các file: `BoW.py`, `Tfidf.py`, `ppmi.py`
 **Lớp `SVDModel`**: Lớp thực hiện giảm chiều bằng TruncatedSVD được cài đặt từ đầu bằng phân rã giá trị riêng. Các phương thức bao gồm:
 - `__init__`: Khởi tạo với số chiều đầu ra mong muốn (`n_components`)
 - `fit(X)`:
-  - Tính ma trận hiệp phương sai `X^T X` và phân rã thành các trị riêng
+  - Tính ma trận hiệp phương sai `X_T X` và phân rã thành các trị riêng
   - Lấy các thành phần chính (`U, S, Vt`) và tỷ lệ phương sai giải thích
 - `transform(X)`: Chiếu dữ liệu lên không gian giảm chiều
 - `fit_transform(X)`: Gộp hai bước `fit` và `transform`
@@ -61,14 +61,14 @@ Gồm các file: `BoW.py`, `Tfidf.py`, `ppmi.py`
 **Lớp `TruncatedSVD`**: Đây là lớp thực hiện xoay trục ma trận sử dụng TruncatedSVD. Các phương thức bao gồm:    
 - `fit(X)`: Thực hiện phân rã SVD. Lưu trữ các thành phần chính (`components`), giá trị kỳ dị (`singular values`), và phương sai giải thích (`explained variance`).
 - `transform(X)`: Chiếu dữ liệu lên không gian thành phần chính đã học.
-- `choose\_n\_components(threshold)	`: Chọn số chiều tối ưu để giữ lại tỷ lệ phương sai mong muốn, mặc định là 95\%.
+- `choose_n_components(threshold)	`: Chọn số chiều tối ưu để giữ lại tỷ lệ phương sai mong muốn, mặc định là 95\%.
 - `plot\_cumulative\_variance()`: Vẽ đồ thị biểu diễn tỷ lệ phương sai tích lũy theo số chiều giữ lại.
 
 **Lớp `TEmbedder`**: Lớp này xử lý đầu vào là các tài liệu văn bản và sinh ra biểu diễn vector rút gọn. Các phương thức bao gồm:
 - `__init__`: Người dùng có thể tùy chỉnh số chiều đầu ra (`n_components`), số từ tối đa (`max_features`), và lựa chọn chuẩn hóa (`norm`).
 - `fit(documents)`: Xây dựng từ điển (dạng term-document}) và tính toán IDF cho từng từ. Sau đó, tính toán TF-IDF và chuẩn hóa, cuối cùng áp dụng `TruncatedSVD` để giảm chiều.
 - `transform_doc(documents)`: Chuyển đổi danh sách tài liệu sang vector biểu diễn rút gọn.
-	- `find\_best\_n\_components(threshold, plot)`: Dựa trên phương sai tích lũy để xác định số chiều tối ưu. Biến `plot` là biến nhị phân, dùng để thực hiện việc vẽ lượng thông tin dựa theo số chiều đầu ra.
+	- `find_best_n_components(threshold, plot)`: Dựa trên phương sai tích lũy để xác định số chiều tối ưu. Biến `plot` là biến nhị phân, dùng để thực hiện việc vẽ lượng thông tin dựa theo số chiều đầu ra.
 
 ---
 ### `ppmi.py`
