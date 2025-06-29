@@ -110,10 +110,8 @@ class BagOfWords:
     def transform_single(self, document: str) -> np.ndarray:
         """
         Convert a single document to BoW vector
-        
         Args:
             document: A cleaned string
-            
         Returns:
             BoW vector with shape (n_features,)
         """
