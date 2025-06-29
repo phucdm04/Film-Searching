@@ -31,19 +31,20 @@ python run.py
 ```
 Sau khi chạy thành công, mở trình duyệt và truy cập: http://127.0.0.1:5000
 
-# 📃Cấu trúc thư mục gốc
+# 📃Các thành phần chính của thư mục gốc
 ```
 root/
-├── run.py                         # File chính để chạy ứng dụng Flask
-├── requirements.txt               # Thư viện cần thiết
-├── .env                           # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
-├── templates/                     # Giao diện HTML
-├── static/                        # Tài nguyên tĩnh (ảnh, CSS, JS)
-├── database_connector/            # Kết nối đến cơ sở dữ liệu (MongoDB, v.v.)
-├── embedding/                     # Thư mục chứa file .py của các mô hình
-├── preprocessing/                 # Tiền xử lý dữ liệu
-├── search_engine/                 # Logic xử lý truy vấn tìm kiếm
-├── trained_models/                # Các model .pkl
+|-- run.py                         # File chính để chạy ứng dụng Flask
+|-- requirements.txt               # Thư viện cần thiết
+|-- .env                           # lưu trữ các biến môi trường (xem ví dụ trong .env.example)
+|-- EDA.pdf                        # phân tích dữ liệu
+|-- templates/                     # Giao diện HTML
+|-- static/                        # Tài nguyên tĩnh (ảnh, CSS, JS)
+|-- database_connector/            # Kết nối đến cơ sở dữ liệu (MongoDB, v.v.)
+|-- embedding/                     # Thư mục chứa file .py của các mô hình
+|-- preprocessing/                 # Tiền xử lý dữ liệu
+|-- search_engine/                 # Logic xử lý truy vấn tìm kiếm
+|-- trained_models/                # Các model .pkl
 
 ```
 **Lưu ý:** để xem mã code của các mô hình, hãy vào folder `embedding/`
