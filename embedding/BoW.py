@@ -381,3 +381,5 @@ class BOW_SVD_Embedding:
 
     def get_vocabulary_size(self) -> int:
         return self.bow.get_vocabulary_size()
+
+
