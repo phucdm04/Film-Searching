@@ -56,20 +56,6 @@
         }
     },
     {
-        "model_name": "fastText.pkl",
-        "qdrant_collection_name": "fastText",
-        "qdrant_vector_size": 300,
-        "metric": {
-            "Precision@10": 0.037,
-            "Recall@10": 0.371,
-            "F1@10": 0.068,
-            "MRR": 0.328,
-            "MAP": 0.328,
-            "nDCG@10": 0.339,
-            "Retrieve time": 0.092
-        }
-    },
-    {
         "model_name": "word2Vec.pkl",
         "qdrant_collection_name": "word2Vec",
         "qdrant_vector_size": 500,
@@ -82,5 +68,33 @@
             "nDCG@10": 0.4547,
             "Retrieve Time (s)": 0.2456
         }
-    }
+    },
+    {
+        "model_name": "glove.pkl",
+        "qdrant_collection_name": "glove",
+        "qdrant_vector_size": 50,
+        "metric": {
+            "Precision@10": 0.107,
+            "Recall@10": 0.816,
+            "F1@10": 0.196,
+            "MRR": 0.784,
+            "MAP": 0.783,
+            "nDCG@10": 0.734,
+            "Retrieve time": 0.224
+        }
+    },
+    {
+        "model_name": "fastText.pkl",
+        "qdrant_collection_name": "fastText",
+        "qdrant_vector_size": 300,
+        "metric": {
+            "Precision@10": 0.102,
+            "Recall@10": 0.796,
+            "F1@10": 0.166,
+            "MRR": 0.754,
+            "MAP": 0.753,
+            "nDCG@10": 0.764,
+            "Retrieve time": 0.143
+        }
+    },
 ]
