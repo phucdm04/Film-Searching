@@ -3,7 +3,7 @@ Folder chứa các tài nguyên tĩnh cho website.
 
 # 📃Cấu trúc folder
 ```
-embedding/
+static/
 |-- Image/
 |-- script.js
 |-- styles.js
