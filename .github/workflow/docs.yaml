@@ -1,36 +1,37 @@
-name: Build Sphinx Docs
+name: Deploy Docs to GitHub Pages
 
 on:
   push:
-    branches: [main]   # hoặc [master] tùy nhánh chính của bạn
-  pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
-  build-docs:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install sphinx
+      - name: Install dependencies
+        run: |
+          pip install sphinx
+          pip install -r requirements.txt
 
-    - name: Build Sphinx HTML docs
-      run: |
-        cd docs
-        make html
+      - name: Build HTML docs
+        run: |
+          sphinx-build docs docs/_build/html
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/_build/html
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
