@@ -1,376 +1,262 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="description"
-        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
-  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Latent Semantic Analysis và Ứng dụng trong Information Retrieval</title>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Latent Semantic Analysis and Its Application in Information Retrieval for movie search.">
+  <meta name="keywords" content="LSA, Information Retrieval, Movie Search, NLP, SVD">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Latent Semantic Analysis and Its Application in Information Retrieval</title>
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-      dataLayer.push(arguments);
-    }
+    function gtag() {
+      dataLayer.push(arguments);
+    }
 
-    gtag('js', new Date());
+    gtag('js', new Date());
 
-    gtag('config', 'G-PYVRSFMDRL');
-  </script>
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
 
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-        rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
 
-  <link rel="stylesheet" href="./static/css/bulma.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css">
-<!--   <link rel="icon" href="./static/images/favicon.svg"> -->
-  <link rel="icon" href="./static/Image/clapperboard.png" type="image/png" />
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/Image/clapperboard.png" type="image/png" />
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script src="./static/js/bulma-carousel.min.js"></script>
-  <script src="./static/js/bulma-slider.min.js"></script>
-  <script src="./static/js/index.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
 </head>
 <body>
 
-<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-  <div class="navbar-menu">
-    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
-      <a class="navbar-item" href="https://keunhong.com">
-      <span class="icon">
-          <i class="fas fa-home"></i>
-      </span>
-      </a>
-
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          More Research
-        </a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item" href="https://hypernerf.github.io">
-            HyperNeRF
-          </a>
-          <a class="navbar-item" href="https://nerfies.github.io">
-            Nerfies
-          </a>
-          <a class="navbar-item" href="https://latentfusion.github.io">
-            LatentFusion
-          </a>
-          <a class="navbar-item" href="https://photoshape.github.io">
-            PhotoShape
-          </a>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</nav> -->
-
-
 <section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">Latent Semantic Analysis và Ứng dụng trong Information Retrieval</h1>
-          <div class="is-size-5 publication-authors">
-<!--             <span class="author-block">
-              <a href="https://keunhong.com">Keunhong Park</a><sup>1</sup>,</span>
-            <span class="author-block">
-              <a href="https://utkarshsinha.com">Utkarsh Sinha</a><sup>2</sup>,</span>
-            <span class="author-block">
-              <a href="https://jonbarron.info">Jonathan T. Barron</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="http://sofienbouaziz.com">Sofien Bouaziz</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://www.danbgoldman.com">Dan B Goldman</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://homes.cs.washington.edu/~seitz/">Steven M. Seitz</a><sup>1,2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="http://www.ricardomartinbrualla.com">Ricardo Martin-Brualla</a><sup>2</sup>
-            </span> -->
-            <span class="author-block">
-              <span>Đặng Minh Phúc</span>,
-            </span>
-            <span class="author-block">
-              <span>Nguyễn Minh Hùng</span>,
-            </span>
-            <span class="author-block">
-              <span>Trương Quốc Trung</span>,
-            </span>
-            <span class="author-block">
-              <span>Lê Hồng Cát</span>,
-            </span>
-            <span class="author-block">
-              <span>Trương Minh Hoàng</span>,
-            </span>
-            <span class="author-block">
-              <span>Trần Nguyễn Trung Tuấn</span>,
-            </span>
-            <span class="author-block">
-              <span>Nguyễn Thuận Phát</span>
-            </span>
-          </div>
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Latent Semantic Analysis and Its Application in Information Retrieval</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <span>Đặng Minh Phúc</span>,
+            </span>
+            <span class="author-block">
+              <span>Nguyễn Minh Hùng</span>,
+            </span>
+            <span class="author-block">
+              <span>Trương Quốc Trung</span>,
+            </span>
+            <span class="author-block">
+              <span>Lê Hồng Cát</span>,
+            </span>
+            <span class="author-block">
+              <span>Trương Minh Hoàng</span>,
+            </span>
+            <span class="author-block">
+              <span>Trần Nguyễn Trung Tuấn</span>,
+            </span>
+            <span class="author-block">
+              <span>Nguyễn Thuận Phát</span>
+            </span>
+          </div>
 
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">University of Science, VNU-HCM, Ho Chi Minh City, Vietnam</span>
-            <span class="author-block">Vietnam National University, Ho Chi Minh City, Vietnam</span>
-<!--             <span class="author-block"><sup>2</sup>Google Research</span> -->
-          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">University of Science, VNU-HCM, Ho Chi Minh City, Vietnam</span>
+            <span class="author-block">Vietnam National University, Ho Chi Minh City, Vietnam</span>
+          </div>
 
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <!-- PDF Link. -->
-              <span class="link-block">
-                <a href="static/PPSKHDL_Report.pdf"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
-                  </span>
-                  <span>PDF</span>
-                </a>
-              </span>
-<!--                <span class="link-block">
-                <a href="https://arxiv.org/abs/2011.12948"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>arXiv</span>
-                </a>
-              </span> -->
-              <!-- Video Link. -->
-<!--               <span class="link-block">
-                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-youtube"></i>
-                  </span>
-                  <span>Video</span>
-                </a>
-              </span> -->
-              <!-- Code Link. -->
-              <span class="link-block">
-                <a href="https://github.com/phucdm04/Film-Searching"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                  </a>
-              </span>
-              <!-- Dataset Link. -->
-<!--               <span class="link-block">
-                <a href="https://github.com/google/nerfies/releases/tag/0.1"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="far fa-images"></i>
-                  </span>
-                  <span>Data</span>
-                  </a> -->
-            </div>
+          <div class="column has-text-centered">
+            <div class="publication-links">
+                            <span class="link-block">
+                <a href="static/PPSKHDL_Report.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>PDF</span>
+                </a>
+              </span>
+                                          <span class="link-block">
+                <a href="https://github.com/phucdm04/Film-Searching"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+                          </div>
 
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- <section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <video id="teaser" autoplay muted loop playsinline height="100%">
-        <source src="./static/videos/teaser.mp4"
-                type="video/mp4">
-      </video>
-      <h2 class="subtitle has-text-centered">
-        <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
-        free-viewpoint
-        portraits.
-      </h2>
-    </div>
-  </div>
-</section> -->
-
-
-<!-- <section class="hero is-light is-small">
-  <div class="hero-body">
-    <div class="container">
-      <div id="results-carousel" class="carousel results-carousel">
-        <div class="item item-steve">
-          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/steve.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-chair-tp">
-          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/chair-tp.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-shiba">
-          <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/shiba.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-fullbody">
-          <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/fullbody.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-blueshirt">
-          <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/blueshirt.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-mask">
-          <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/mask.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-coffee">
-          <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/coffee.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-toby">
-          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/toby2.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-  </div>
-</section> -->
-
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
 <section class="section">
-  <div class="container is-max-desktop">
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            We present the first method capable of photorealistically reconstructing a non-rigidly
-            deforming scene using photos/videos captured casually from mobile phones.
-          </p>
-          <p>
-            Our approach augments neural radiance fields
-            (NeRF) by optimizing an
-            additional continuous volumetric deformation field that warps each observed point into a
-            canonical 5D NeRF.
-            We observe that these NeRF-like deformation fields are prone to local minima, and
-            propose a coarse-to-fine optimization method for coordinate-based models that allows for
-            more robust optimization.
-            By adapting principles from geometry processing and physical simulation to NeRF-like
-            models, we propose an elastic regularization of the deformation field that further
-            improves robustness.
-          </p>
-          <p>
-            We show that <span class="dnerf">Nerfies</span> can turn casually captured selfie
-            photos/videos into deformable NeRF
-            models that allow for photorealistic renderings of the subject from arbitrary
-            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
-            using a
-            rig with two mobile phones that take time-synchronized photos, yielding train/validation
-            images of the same pose at different viewpoints. We show that our method faithfully
-            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
-            fidelity.
-          </p>
-        </div>
-      </div>
-    </div>
-    <!--/ Abstract. -->
-
-    <!-- Paper video. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-      </div>
-    </div>
-    <!--/ Paper video. -->
-  </div>
-</section>
-  
-
-
-<!-- <section class="section" id="BibTeX">
-  <div class="container is-max-desktop content">
-    <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
-  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
-  title     = {Nerfies: Deformable Neural Radiance Fields},
-  journal   = {ICCV},
-  year      = {2021},
-}</code></pre>
-  </div>
-</section> -->
-
+  <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">🎥 Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Information Retrieval (IR) is a central problem in Natural Language Processing (NLP) and computer science, aiming to find and retrieve documents or text segments relevant to a user's query. [cite_start]With the increasing abundance of movie information—including descriptions, reviews, genres, summaries, and user comments—the need to search for movies based on brief, sometimes incomplete, descriptions has become essential[cite: 16, 17]. [cite_start]This project addresses the challenge of building a system that allows users to find movie titles based on content descriptions, especially when they only vaguely recall the plot or specific scenes[cite: 45, 47]. [cite_start]Unlike traditional keyword-based IR, this system needs to understand the underlying semantics of movie descriptions and user queries, requiring more effective language processing methods[cite: 17].
+          </p>
+          <p>
+[cite_start]            We propose using Latent Semantic Analysis (LSA), a classic unsupervised learning technique based on linear algebra, to extract hidden semantic meanings from text through matrix decomposition[cite: 17, 18]. [cite_start]We detail the principles of LSA and its effective operation in extracting semantics from text using matrix factorization[cite: 18]. [cite_start]Furthermore, we apply LSA to solve the problem of retrieving movie titles based on content descriptions and compare its effectiveness with other modern approaches [cite: 18][cite_start], including Bag-of-Words (BoW), TF-IDF, PPMI, Word2Vec, GloVe, FastText, and HellingerPCA[cite: 292]. [cite_start]Through this report, we not only solve a specific problem but also provide an overview of text representation techniques in information retrieval[cite: 18].
+          </p>
+        </div>
+      </div>
+    </div>
+            <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">📊 Experimental Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            We conducted experiments to evaluate the performance of various text representation methods in our movie retrieval system. [cite_start]The following table summarizes the key metrics: Precision@10 (P@10), Recall@10 (R@10), F1@10, Mean Reciprocal Rank (MRR), Mean Average Precision (MAP), nDCG@10, and Time (s)[cite: 278].
+          </p>
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>P@10</th>
+                <th>R@10</th>
+                <th>F1@10</th>
+                <th>MRR</th>
+                <th>MAP</th>
+                <th>nDCG@10</th>
+                <th>Time (s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>BoW</td>
+                <td>0.081</td>
+                <td>0.800</td>
+                <td>0.146</td>
+                <td>0.699</td>
+                <td>0.698</td>
+                <td>0.723</td>
+                <td>0.246</td>
+              </tr>
+              <tr>
+                <td>TF-IDF</td>
+                <td>0.072</td>
+                <td>0.714</td>
+                <td>0.130</td>
+                <td>0.562</td>
+                <td>0.561</td>
+                <td>0.598</td>
+                <td>0.236</td>
+              </tr>
+              <tr>
+                <td>PPMI</td>
+                <td>0.051</td>
+                <td>0.503</td>
+                <td>0.092</td>
+                <td>0.441</td>
+                <td>0.441</td>
+                <td>0.456</td>
+                <td>0.212</td>
+              </tr>
+              <tr>
+                <td>HellingerPCA</td>
+                <td>0.038</td>
+                <td>0.381</td>
+                <td>0.069</td>
+                <td>0.265</td>
+                <td>0.265</td>
+                <td>0.293</td>
+                <td>0.230</td>
+              </tr>
+              <tr>
+                <td>Word2Vec</td>
+                <td>0.048</td>
+                <td>0.482</td>
+                <td>0.090</td>
+                <td>0.446</td>
+                <td>0.446</td>
+                <td>0.456</td>
+                <td>0.246</td>
+              </tr>
+              <tr>
+                <td>GloVe</td>
+                <td><b>0.107</b></td>
+                <td>0.816</td>
+                <td><b>0.196</b></td>
+                <td><b>0.784</b></td>
+                <td><b>0.783</b></td>
+                <td><u>0.734</u></td>
+                <td><u>0.224</u></td>
+              </tr>
+              <tr>
+                <td>FastText</td>
+                <td><u>0.102</u></td>
+                <td><b>0.796</b></td>
+                <td><u>0.166</u></td>
+                <td><u>0.754</u></td>
+                <td><u>0.753</u></td>
+                <td><b>0.764</b></td>
+                <td><b>0.143</b></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+[cite_start]            From the results, traditional methods like Bag-of-Words (BoW), TF-IDF, and PPMI generally show lower effectiveness in capturing semantic relationships compared to modern embedding models[cite: 279, 280, 285]. [cite_start]BoW, despite a decent R@10, has a low F1@10, indicating difficulty in competitive semantic understanding without dimensionality reduction[cite: 280]. [cite_start]HellingerPCA also shows limited effectiveness, suggesting a need for further fine-tuning[cite: 284].
+          </p>
+          <p>
+            In contrast, modern embedding methods such as Word2Vec, GloVe, and FastText demonstrate superior performance in semantic understanding. [cite_start]GloVe stands out as the best overall, achieving the highest F1@10 (0.196) and strong MRR and MAP scores (above 0.78), proving its ability to learn global semantic relationships effectively[cite: 282]. [cite_start]FastText, while having slightly lower precision, is notable for its fastest processing time (0.143s) and highest nDCG@10 (0.764), making it suitable for systems requiring quick response times[cite: 283]. [cite_start]Overall, modern embedding models significantly outperform traditional baselines in both accuracy and the ability to rank documents by semantic relevance in information retrieval tasks[cite: 285].
+          </p>
+        </div>
+      </div>
+    </div>
+            <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">🎥 Video Demo</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
 
 <footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <a class="icon-link"
-         href="./static/videos/nerfies_paper.pdf">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-          <p>
-            This means you are free to borrow the <a
-              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/PPSKHDL_Report.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/phucdm04/Film-Searching" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is adapted from <a href="https://nerfies.github.io/">Nerfies</a>, licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
 </footer>
 
 </body>
