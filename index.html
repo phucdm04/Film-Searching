@@ -1,263 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="description"
-        content="Latent Semantic Analysis and Its Application in Information Retrieval for movie search.">
-  <meta name="keywords" content="LSA, Information Retrieval, Movie Search, NLP, SVD">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Latent Semantic Analysis and Its Application in Information Retrieval</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Latent Semantic Analysis and Its Application in Information Retrieval for movie search.">
+  <meta name="keywords" content="LSA, Information Retrieval, Movie Search, NLP, SVD">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Latent Semantic Analysis and Its Application in Information Retrieval</title>
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
 
-    function gtag() {
-      dataLayer.push(arguments);
-    }
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/Image/clapperboard.png" type="image/png" />
 
-    gtag('js', new Date());
-
-    gtag('config', 'G-PYVRSFMDRL');
-  </script>
-
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-        rel="stylesheet">
-
-  <link rel="stylesheet" href="./static/css/bulma.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css">
-  <link rel="icon" href="./static/Image/clapperboard.png" type="image/png" />
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script src="./static/js/bulma-carousel.min.js"></script>
-  <script src="./static/js/bulma-slider.min.js"></script>
-  <script src="./static/js/index.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
 </head>
 <body>
-
 <section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">Latent Semantic Analysis and Its Application in Information Retrieval</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">
-              <span>Đặng Minh Phúc</span>,
-            </span>
-            <span class="author-block">
-              <span>Nguyễn Minh Hùng</span>,
-            </span>
-            <span class="author-block">
-              <span>Trương Quốc Trung</span>,
-            </span>
-            <span class="author-block">
-              <span>Lê Hồng Cát</span>,
-            </span>
-            <span class="author-block">
-              <span>Trương Minh Hoàng</span>,
-            </span>
-            <span class="author-block">
-              <span>Trần Nguyễn Trung Tuấn</span>,
-            </span>
-            <span class="author-block">
-              <span>Nguyễn Thuận Phát</span>
-            </span>
-          </div>
-
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">University of Science, VNU-HCM, Ho Chi Minh City, Vietnam</span>
-            <span class="author-block">Vietnam National University, Ho Chi Minh City, Vietnam</span>
-          </div>
-
-          <div class="column has-text-centered">
-            <div class="publication-links">
-                            <span class="link-block">
-                <a href="static/PPSKHDL_Report.pdf"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
-                  </span>
-                  <span>PDF</span>
-                </a>
-              </span>
-                                          <span class="link-block">
-                <a href="https://github.com/phucdm04/Film-Searching"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                  </a>
-              </span>
-                          </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Latent Semantic Analysis and Its Application in Information Retrieval</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Đặng Minh Phúc,</span>
+            <span class="author-block">Nguyễn Minh Hùng,</span>
+            <span class="author-block">Trương Quốc Trung,</span>
+            <span class="author-block">Lê Hồng Cát,</span>
+            <span class="author-block">Trương Minh Hoàng,</span>
+            <span class="author-block">Trần Nguyễn Trung Tuấn,</span>
+            <span class="author-block">Nguyễn Thuận Phát</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">University of Science, VNU-HCM, Ho Chi Minh City, Vietnam</span>
+            <span class="author-block">Vietnam National University, Ho Chi Minh City, Vietnam</span>
+          </div>
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="static/PPSKHDL_Report.pdf" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>PDF</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/phucdm04/Film-Searching" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
 
 <section class="section">
-  <div class="container is-max-desktop">
-        <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">🎥 Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            Information Retrieval (IR) is a central problem in Natural Language Processing (NLP) and computer science, aiming to find and retrieve documents or text segments relevant to a user's query. [cite_start]With the increasing abundance of movie information—including descriptions, reviews, genres, summaries, and user comments—the need to search for movies based on brief, sometimes incomplete, descriptions has become essential[cite: 16, 17]. [cite_start]This project addresses the challenge of building a system that allows users to find movie titles based on content descriptions, especially when they only vaguely recall the plot or specific scenes[cite: 45, 47]. [cite_start]Unlike traditional keyword-based IR, this system needs to understand the underlying semantics of movie descriptions and user queries, requiring more effective language processing methods[cite: 17].
-          </p>
-          <p>
-[cite_start]            We propose using Latent Semantic Analysis (LSA), a classic unsupervised learning technique based on linear algebra, to extract hidden semantic meanings from text through matrix decomposition[cite: 17, 18]. [cite_start]We detail the principles of LSA and its effective operation in extracting semantics from text using matrix factorization[cite: 18]. [cite_start]Furthermore, we apply LSA to solve the problem of retrieving movie titles based on content descriptions and compare its effectiveness with other modern approaches [cite: 18][cite_start], including Bag-of-Words (BoW), TF-IDF, PPMI, Word2Vec, GloVe, FastText, and HellingerPCA[cite: 292]. [cite_start]Through this report, we not only solve a specific problem but also provide an overview of text representation techniques in information retrieval[cite: 18].
-          </p>
-        </div>
-      </div>
-    </div>
-            <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">📊 Experimental Results</h2>
-        <div class="content has-text-justified">
-          <p>
-            We conducted experiments to evaluate the performance of various text representation methods in our movie retrieval system. [cite_start]The following table summarizes the key metrics: Precision@10 (P@10), Recall@10 (R@10), F1@10, Mean Reciprocal Rank (MRR), Mean Average Precision (MAP), nDCG@10, and Time (s)[cite: 278].
-          </p>
-          <table class="table is-striped is-hoverable is-fullwidth">
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th>P@10</th>
-                <th>R@10</th>
-                <th>F1@10</th>
-                <th>MRR</th>
-                <th>MAP</th>
-                <th>nDCG@10</th>
-                <th>Time (s)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>BoW</td>
-                <td>0.081</td>
-                <td>0.800</td>
-                <td>0.146</td>
-                <td>0.699</td>
-                <td>0.698</td>
-                <td>0.723</td>
-                <td>0.246</td>
-              </tr>
-              <tr>
-                <td>TF-IDF</td>
-                <td>0.072</td>
-                <td>0.714</td>
-                <td>0.130</td>
-                <td>0.562</td>
-                <td>0.561</td>
-                <td>0.598</td>
-                <td>0.236</td>
-              </tr>
-              <tr>
-                <td>PPMI</td>
-                <td>0.051</td>
-                <td>0.503</td>
-                <td>0.092</td>
-                <td>0.441</td>
-                <td>0.441</td>
-                <td>0.456</td>
-                <td>0.212</td>
-              </tr>
-              <tr>
-                <td>HellingerPCA</td>
-                <td>0.038</td>
-                <td>0.381</td>
-                <td>0.069</td>
-                <td>0.265</td>
-                <td>0.265</td>
-                <td>0.293</td>
-                <td>0.230</td>
-              </tr>
-              <tr>
-                <td>Word2Vec</td>
-                <td>0.048</td>
-                <td>0.482</td>
-                <td>0.090</td>
-                <td>0.446</td>
-                <td>0.446</td>
-                <td>0.456</td>
-                <td>0.246</td>
-              </tr>
-              <tr>
-                <td>GloVe</td>
-                <td><b>0.107</b></td>
-                <td>0.816</td>
-                <td><b>0.196</b></td>
-                <td><b>0.784</b></td>
-                <td><b>0.783</b></td>
-                <td><u>0.734</u></td>
-                <td><u>0.224</u></td>
-              </tr>
-              <tr>
-                <td>FastText</td>
-                <td><u>0.102</u></td>
-                <td><b>0.796</b></td>
-                <td><u>0.166</u></td>
-                <td><u>0.754</u></td>
-                <td><u>0.753</u></td>
-                <td><b>0.764</b></td>
-                <td><b>0.143</b></td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-[cite_start]            From the results, traditional methods like Bag-of-Words (BoW), TF-IDF, and PPMI generally show lower effectiveness in capturing semantic relationships compared to modern embedding models[cite: 279, 280, 285]. [cite_start]BoW, despite a decent R@10, has a low F1@10, indicating difficulty in competitive semantic understanding without dimensionality reduction[cite: 280]. [cite_start]HellingerPCA also shows limited effectiveness, suggesting a need for further fine-tuning[cite: 284].
-          </p>
-          <p>
-            In contrast, modern embedding methods such as Word2Vec, GloVe, and FastText demonstrate superior performance in semantic understanding. [cite_start]GloVe stands out as the best overall, achieving the highest F1@10 (0.196) and strong MRR and MAP scores (above 0.78), proving its ability to learn global semantic relationships effectively[cite: 282]. [cite_start]FastText, while having slightly lower precision, is notable for its fastest processing time (0.143s) and highest nDCG@10 (0.764), making it suitable for systems requiring quick response times[cite: 283]. [cite_start]Overall, modern embedding models significantly outperform traditional baselines in both accuracy and the ability to rank documents by semantic relevance in information retrieval tasks[cite: 285].
-          </p>
-        </div>
-      </div>
-    </div>
-            <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">🎥 Video Demo</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">🎥 Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Information Retrieval (IR) is a central problem in Natural Language Processing (NLP) and computer science, aiming to find and retrieve documents or text segments relevant to a user's query. With the increasing abundance of movie information—including descriptions, reviews, genres, summaries, and user comments—the need to search for movies based on brief, sometimes incomplete, descriptions has become essential. This project addresses the challenge of building a system that allows users to find movie titles based on content descriptions, especially when they only vaguely recall the plot or specific scenes. Unlike traditional keyword-based IR, this system needs to understand the underlying semantics of movie descriptions and user queries, requiring more effective language processing methods.
+          </p>
+          <p>
+            We propose using Latent Semantic Analysis (LSA), a classic unsupervised learning technique based on linear algebra, to extract hidden semantic meanings from text through matrix decomposition. We detail the principles of LSA and its effective operation in extracting semantics from text using matrix factorization. Furthermore, we apply LSA to solve the problem of retrieving movie titles based on content descriptions and compare its effectiveness with other modern approaches, including Bag-of-Words (BoW), TF-IDF, PPMI, Word2Vec, GloVe, FastText, and HellingerPCA. Through this report, we not only solve a specific problem but also provide an overview of text representation techniques in information retrieval.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">📊 Experimental Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            We conducted experiments to evaluate the performance of various text representation methods in our movie retrieval system. The following table summarizes the key metrics: Precision@10 (P@10), Recall@10 (R@10), F1@10, Mean Reciprocal Rank (MRR), Mean Average Precision (MAP), nDCG@10, and Time (s).
+          </p>
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Method</th><th>P@10</th><th>R@10</th><th>F1@10</th><th>MRR</th><th>MAP</th><th>nDCG@10</th><th>Time (s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>BoW</td><td>0.081</td><td>0.800</td><td>0.146</td><td>0.699</td><td>0.698</td><td>0.723</td><td>0.246</td></tr>
+              <tr><td>TF-IDF</td><td>0.072</td><td>0.714</td><td>0.130</td><td>0.562</td><td>0.561</td><td>0.598</td><td>0.236</td></tr>
+              <tr><td>PPMI</td><td>0.051</td><td>0.503</td><td>0.092</td><td>0.441</td><td>0.441</td><td>0.456</td><td>0.212</td></tr>
+              <tr><td>HellingerPCA</td><td>0.038</td><td>0.381</td><td>0.069</td><td>0.265</td><td>0.265</td><td>0.293</td><td>0.230</td></tr>
+              <tr><td>Word2Vec</td><td>0.048</td><td>0.482</td><td>0.090</td><td>0.446</td><td>0.446</td><td>0.456</td><td>0.246</td></tr>
+              <tr><td>GloVe</td><td><b>0.107</b></td><td>0.816</td><td><b>0.196</b></td><td><b>0.784</b></td><td><b>0.783</b></td><td><u>0.734</u></td><td><u>0.224</u></td></tr>
+              <tr><td>FastText</td><td><u>0.102</u></td><td><b>0.796</b></td><td><u>0.166</u></td><td><u>0.754</u></td><td><u>0.753</u></td><td><b>0.764</b></td><td><b>0.143</b></td></tr>
+            </tbody>
+          </table>
+          <p>
+            From the results, traditional methods like Bag-of-Words (BoW), TF-IDF, and PPMI generally show lower effectiveness in capturing semantic relationships compared to modern embedding models. BoW, despite a decent R@10, has a low F1@10, indicating difficulty in competitive semantic understanding without dimensionality reduction. HellingerPCA also shows limited effectiveness, suggesting a need for further fine-tuning.
+          </p>
+          <p>
+            In contrast, modern embedding methods such as Word2Vec, GloVe, and FastText demonstrate superior performance in semantic understanding. GloVe stands out as the best overall, achieving the highest F1@10 (0.196) and strong MRR and MAP scores (above 0.78), proving its ability to learn global semantic relationships effectively. FastText, while having slightly lower precision, is notable for its fastest processing time (0.143s) and highest nDCG@10 (0.764), making it suitable for systems requiring quick response times. Overall, modern embedding models significantly outperform traditional baselines in both accuracy and the ability to rank documents by semantic relevance in information retrieval tasks.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">🎥 Video Demo</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <a class="icon-link"
-         href="./static/PPSKHDL_Report.pdf">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/phucdm04/Film-Searching" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is adapted from <a href="https://nerfies.github.io/">Nerfies</a>, licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-        </div>
-      </div>
-      </div>
-    </div>
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="./static/PPSKHDL_Report.pdf"><i class="fas fa-file-pdf"></i></a>
+      <a class="icon-link" href="https://github.com/phucdm04/Film-Searching"><i class="fab fa-github"></i></a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is adapted from <a href="https://nerfies.github.io/">Nerfies</a>, licensed under a 
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+              Creative Commons Attribution-ShareAlike 4.0 International License
+            </a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </footer>
-
 </body>
 </html>
